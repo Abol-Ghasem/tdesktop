@@ -557,7 +557,7 @@ void UserpicButton::openPeerPhoto() {
 		choosePhotoLocally();
 		return;
 	}
-	if (Core::App().settings().superDataSaving()) {
+	if (Core::App().settings().superDataSavingNoAvatars()) {
 		return;
 	}
 
@@ -863,7 +863,7 @@ void UserpicButton::processPeerPhoto() {
 void UserpicButton::updateCursor() {
 	Expects(_role == Role::OpenPhoto);
 
-	const auto pointer = (_canOpenPhoto && !Core::App().settings().superDataSaving())
+	const auto pointer = (_canOpenPhoto && !Core::App().settings().superDataSavingNoAvatars())
 		|| (_changeOverlayEnabled && _cursorInChangeOverlay);
 	setPointerCursor(pointer);
 }

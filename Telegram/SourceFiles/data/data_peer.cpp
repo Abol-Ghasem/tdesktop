@@ -415,7 +415,7 @@ void PeerData::setUserpicPhoto(const MTPPhoto &data) {
 }
 
 QImage *PeerData::userpicCloudImage(Ui::PeerUserpicView &view) const {
-	if (Core::App().settings().superDataSaving()) {
+	if (Core::App().settings().superDataSavingNoAvatars()) {
 		return nullptr;
 	}
 	if (!_userpic.isCurrentView(view.cloud)) {
@@ -466,7 +466,7 @@ void PeerData::paintUserpic(
 }
 
 void PeerData::loadUserpic() {
-	if (Core::App().settings().superDataSaving()) {
+	if (Core::App().settings().superDataSavingNoAvatars()) {
 		return;
 	}
 	_userpic.load(&session(), userpicOrigin());
@@ -477,14 +477,14 @@ bool PeerData::hasUserpic() const {
 }
 
 Ui::PeerUserpicView PeerData::activeUserpicView() {
-	if (Core::App().settings().superDataSaving()) {
+	if (Core::App().settings().superDataSavingNoAvatars()) {
 		return {};
 	}
 	return { .cloud = _userpic.empty() ? nullptr : _userpic.activeView() };
 }
 
 Ui::PeerUserpicView PeerData::createUserpicView() {
-	if (_userpic.empty() || Core::App().settings().superDataSaving()) {
+	if (_userpic.empty() || Core::App().settings().superDataSavingNoAvatars()) {
 		return {};
 	}
 	auto result = _userpic.createView();
@@ -493,7 +493,7 @@ Ui::PeerUserpicView PeerData::createUserpicView() {
 }
 
 bool PeerData::useEmptyUserpic(Ui::PeerUserpicView &view) const {
-	return Core::App().settings().superDataSaving() || !userpicCloudImage(view);
+	return Core::App().settings().superDataSavingNoAvatars() || !userpicCloudImage(view);
 }
 
 InMemoryKey PeerData::userpicUniqueKey(Ui::PeerUserpicView &view) const {
@@ -570,7 +570,7 @@ PhotoId PeerData::userpicPhotoId() const {
 }
 
 bool PeerData::userpicHasVideo() const {
-	return !Core::App().settings().superDataSaving() && (_userpicHasVideo != 0);
+	return !Core::App().settings().superDataSavingNoAvatars() && (_userpicHasVideo != 0);
 }
 
 Data::FileOrigin PeerData::userpicOrigin() const {

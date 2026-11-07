@@ -96,6 +96,105 @@ using namespace Builder;
 }
 #endif // Q_OS_MAC && !OS_MAC_STORE
 
+void SuperDataSavingBox(
+		not_null<Ui::GenericBox*> box,
+		not_null<Window::SessionController*> controller) {
+	box->setTitle(rpl::single(QString::fromUtf8("سوپر دیتا سیوینگ")));
+	box->setWidth(st::boxWideWidth);
+	box->addButton(tr::lng_about_done(), [=] { box->closeBox(); });
+
+	const auto container = box->verticalLayout();
+	AddSkip(container);
+
+	const auto masterToggle = container->add(object_ptr<Button>(
+		container,
+		rpl::single(QString::fromUtf8("فعال‌سازی حالت سوپر دیتا سیوینگ")),
+		st::settingsButtonNoIcon
+	))->toggleOn(Core::App().settings().superDataSavingValue());
+
+	AddSkip(container);
+	AddDividerText(
+		container,
+		rpl::single(QString::fromUtf8(
+			"در صورت فعال بودن، گزینه‌های انتخابی زیر از ریشه در سرور درخواست و دانلود نخواهند شد تا حداکثر صرفه‌جویی در مصرف داده انجام شود.")));
+
+	const auto wrap = container->add(
+		object_ptr<Ui::SlideWrap<Ui::VerticalLayout>>(
+			container,
+			object_ptr<Ui::VerticalLayout>(container)));
+	const auto inner = wrap->entity();
+
+	masterToggle->toggledChanges(
+	) | rpl::on_next([=](bool toggled) {
+		wrap->toggle(toggled, anim::type::normal);
+		Core::App().settings().setSuperDataSaving(toggled);
+		Core::App().saveSettingsDelayed();
+	}, masterToggle->lifetime());
+
+	wrap->toggle(Core::App().settings().superDataSaving(), anim::type::instant);
+
+	AddSkip(inner);
+	AddSubsectionTitle(inner, rpl::single(QString::fromUtf8("موارد مسدودسازی")));
+
+	const auto addSubOption = [&](
+			const QString &title,
+			const QString &about,
+			rpl::producer<bool> value,
+			Fn<void(bool)> onChange) {
+		const auto button = inner->add(object_ptr<Button>(
+			inner,
+			rpl::single(title),
+			st::settingsButtonNoIcon
+		))->toggleOn(std::move(value));
+
+		button->toggledChanges(
+		) | rpl::on_next([=](bool toggled) {
+			onChange(toggled);
+			Core::App().saveSettingsDelayed();
+		}, button->lifetime());
+
+		AddSkip(inner);
+		AddDividerText(inner, rpl::single(about));
+		AddSkip(inner);
+	};
+
+	addSubOption(
+		QString::fromUtf8("عدم دانلود و لود عکس‌های پروفایل"),
+		QString::fromUtf8("جلوگیری از ارسال درخواست و دانلود هرگونه عکس پروفایل کاربر، گروه یا کانال."),
+		Core::App().settings().superDataSavingNoAvatarsValue(),
+		[](bool on) { Core::App().settings().setSuperDataSavingNoAvatars(on); });
+
+	addSubOption(
+		QString::fromUtf8("عدم بارگزاری و لود استوری‌ها"),
+		QString::fromUtf8("مسدودسازی کامل دریافت استوری‌ها و کاورهای ویدیویی و تصویری بالای صفحه."),
+		Core::App().settings().superDataSavingNoStoriesValue(),
+		[](bool on) { Core::App().settings().setSuperDataSavingNoStories(on); });
+
+	addSubOption(
+		QString::fromUtf8("عدم بارگزاری پیش‌نمایش سایت‌ها و لینک‌ها"),
+		QString::fromUtf8("نمایش لینک‌ها به صورت متن ساده بدون دانلود تصاویر و پیش‌نمایش سایت‌ها."),
+		Core::App().settings().superDataSavingNoLinkPreviewsValue(),
+		[](bool on) { Core::App().settings().setSuperDataSavingNoLinkPreviews(on); });
+
+	addSubOption(
+		QString::fromUtf8("استفاده از ایموجی متنی به جای ایموجی سفارشی"),
+		QString::fromUtf8("جلوگیری از دانلود پک‌های ایموجی متحرک و نمایش ایموجی استاندارد متنی."),
+		Core::App().settings().superDataSavingNoCustomEmojiValue(),
+		[](bool on) { Core::App().settings().setSuperDataSavingNoCustomEmoji(on); });
+
+	addSubOption(
+		QString::fromUtf8("عدم پیش‌دانلود تصاویر بندانگشتی"),
+		QString::fromUtf8("جلوگیری از دانلود خودکار پیش‌نمایش بندانگشتی رسانه‌ها تا قبل از دانلود دستی."),
+		Core::App().settings().superDataSavingNoThumbnailsValue(),
+		[](bool on) { Core::App().settings().setSuperDataSavingNoThumbnails(on); });
+
+	addSubOption(
+		QString::fromUtf8("قطع بافرینگ و پخش خودکار رسانه‌ها"),
+		QString::fromUtf8("عدم دریافت بافر اولیه ویدیوها و گیف‌ها در هنگام اسکرول صفحه چت."),
+		Core::App().settings().superDataSavingNoBufferingValue(),
+		[](bool on) { Core::App().settings().setSuperDataSavingNoBuffering(on); });
+}
+
 void BuildDataStorageSection(SectionBuilder &builder) {
 	const auto controller = builder.controller();
 	const auto container = builder.container();
@@ -212,34 +311,44 @@ void BuildDataStorageSection(SectionBuilder &builder) {
 		}, askDownloadPath->lifetime());
 	}
 
-	const auto superDataSaving = builder.addButton({
+	const auto superDataSavingRow = builder.addButton({
 		.id = u"advanced/super_data_saving"_q,
 		.title = rpl::single(QString::fromUtf8("سوپر دیتا سیوینگ")),
-		.st = &st::settingsButtonNoIcon,
-		.toggled = Core::App().settings().superDataSavingValue(),
+		.icon = { &st::menuIconStorage },
+		.onClick = [=] {
+			controller->show(Box(SuperDataSavingBox, controller));
+		},
 		.keywords = {
 			u"super data saving"_q,
 			u"data saving"_q,
 			u"data"_q,
 			QString::fromUtf8("سوپر دیتا سیوینگ"),
 			QString::fromUtf8("دیتا سیوینگ"),
+			QString::fromUtf8("صرفه‌جویی داده"),
 			QString::fromUtf8("پروفایل"),
 			QString::fromUtf8("عکس"),
-			QString::fromUtf8("عکس پروفایل"),
+			QString::fromUtf8("استوری"),
+			QString::fromUtf8("پیش‌نمایش لینک"),
+			QString::fromUtf8("ایموجی سفارشی"),
 			u"profile"_q,
-			u"photo"_q,
-			u"avatar"_q,
+			u"stories"_q,
+			u"link previews"_q,
+			u"custom emoji"_q,
 		},
 	});
-
-	if (superDataSaving) {
-		superDataSaving->toggledValue(
-		) | rpl::filter([](bool checked) {
-			return (checked != Core::App().settings().superDataSaving());
-		}) | rpl::on_next([=](bool checked) {
-			Core::App().settings().setSuperDataSaving(checked);
+	if (superDataSavingRow) {
+		const auto [toggle, checkView] = AddSeparatedToggle(
+			superDataSavingRow,
+			st::settingsButton,
+			Core::App().settings().superDataSaving());
+		Core::App().settings().superDataSavingChanges(
+		) | rpl::on_next([=](bool on) {
+			checkView->setChecked(on, anim::type::normal);
+		}, superDataSavingRow->lifetime());
+		toggle->clicks() | rpl::on_next([=] {
+			Core::App().settings().setSuperDataSaving(!checkView->checked());
 			Core::App().saveSettingsDelayed();
-		}, superDataSaving->lifetime());
+		}, toggle->lifetime());
 	}
 
 	builder.addSkip(st::settingsCheckboxesSkip);

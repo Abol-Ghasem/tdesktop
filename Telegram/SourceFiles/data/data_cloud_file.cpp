@@ -99,10 +99,15 @@ bool CloudImage::loadedOnce() const {
 }
 
 void CloudImage::load(not_null<Main::Session*> session, FileOrigin origin) {
-	if (Core::App().settings().superDataSaving()) {
+	if (Core::App().settings().superDataSavingNoAvatars()) {
 		if (_file.location.file().type() == StorageFileLocation::Type::PeerPhoto
 			|| origin.is<Data::FileOriginPeerPhoto>()
 			|| origin.is<Data::FileOriginUserPhoto>()) {
+			return;
+		}
+	}
+	if (Core::App().settings().superDataSavingNoStories()) {
+		if (origin.is<Data::FileOriginStory>()) {
 			return;
 		}
 	}
@@ -267,10 +272,15 @@ void LoadCloudFile(
 		|| (finalCheck && !finalCheck())) {
 		return;
 	}
-	if (Core::App().settings().superDataSaving()) {
+	if (Core::App().settings().superDataSavingNoAvatars()) {
 		if (file.location.file().type() == StorageFileLocation::Type::PeerPhoto
 			|| origin.is<Data::FileOriginPeerPhoto>()
 			|| origin.is<Data::FileOriginUserPhoto>()) {
+			return;
+		}
+	}
+	if (Core::App().settings().superDataSavingNoStories()) {
+		if (origin.is<Data::FileOriginStory>()) {
 			return;
 		}
 	}

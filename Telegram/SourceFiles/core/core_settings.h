@@ -1005,6 +1005,30 @@ public:
 	[[nodiscard]] rpl::producer<bool> superDataSavingChanges() const;
 	void setSuperDataSaving(bool value);
 
+	[[nodiscard]] bool superDataSavingNoAvatars() const;
+	[[nodiscard]] rpl::producer<bool> superDataSavingNoAvatarsValue() const;
+	void setSuperDataSavingNoAvatars(bool value);
+
+	[[nodiscard]] bool superDataSavingNoStories() const;
+	[[nodiscard]] rpl::producer<bool> superDataSavingNoStoriesValue() const;
+	void setSuperDataSavingNoStories(bool value);
+
+	[[nodiscard]] bool superDataSavingNoLinkPreviews() const;
+	[[nodiscard]] rpl::producer<bool> superDataSavingNoLinkPreviewsValue() const;
+	void setSuperDataSavingNoLinkPreviews(bool value);
+
+	[[nodiscard]] bool superDataSavingNoCustomEmoji() const;
+	[[nodiscard]] rpl::producer<bool> superDataSavingNoCustomEmojiValue() const;
+	void setSuperDataSavingNoCustomEmoji(bool value);
+
+	[[nodiscard]] bool superDataSavingNoThumbnails() const;
+	[[nodiscard]] rpl::producer<bool> superDataSavingNoThumbnailsValue() const;
+	void setSuperDataSavingNoThumbnails(bool value);
+
+	[[nodiscard]] bool superDataSavingNoBuffering() const;
+	[[nodiscard]] rpl::producer<bool> superDataSavingNoBufferingValue() const;
+	void setSuperDataSavingNoBuffering(bool value);
+
 	[[nodiscard]] Ui::ChatsFiltersTabsMode chatFiltersTabsMode() const;
 	[[nodiscard]] auto chatFiltersTabsModeValue() const
 	-> rpl::producer<Ui::ChatsFiltersTabsMode>;
@@ -1206,6 +1230,12 @@ private:
 	Media::VideoQuality _videoQuality;
 	rpl::variable<bool> _chatFiltersHorizontal = false;
 	rpl::variable<bool> _superDataSaving = false;
+	rpl::variable<bool> _superDataSavingNoAvatars = true;
+	rpl::variable<bool> _superDataSavingNoStories = true;
+	rpl::variable<bool> _superDataSavingNoLinkPreviews = true;
+	rpl::variable<bool> _superDataSavingNoCustomEmoji = true;
+	rpl::variable<bool> _superDataSavingNoThumbnails = true;
+	rpl::variable<bool> _superDataSavingNoBuffering = true;
 	rpl::variable<Ui::ChatsFiltersTabsMode> _chatFiltersTabsMode
 		= Ui::ChatsFiltersTabsMode::Default;
 	base::flat_map<QByteArray, QByteArray> _prefs;

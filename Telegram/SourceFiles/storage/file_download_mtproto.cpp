@@ -183,7 +183,7 @@ bool mtpFileLoader::setWebFileSizeHook(int64 size) {
 }
 
 void mtpFileLoader::startLoading() {
-	if (Core::App().settings().superDataSaving()) {
+	if (Core::App().settings().superDataSavingNoAvatars()) {
 		if (const auto storageLocation = std::get_if<StorageFileLocation>(&location().data)) {
 			if (storageLocation->type() == StorageFileLocation::Type::PeerPhoto) {
 				cancel();
@@ -196,11 +196,17 @@ void mtpFileLoader::startLoading() {
 			return;
 		}
 	}
+	if (Core::App().settings().superDataSavingNoStories()) {
+		if (fileOrigin().is<Data::FileOriginStory>()) {
+			cancel();
+			return;
+		}
+	}
 	addToQueue();
 }
 
 void mtpFileLoader::startLoadingWithPartial(const QByteArray &data) {
-	if (Core::App().settings().superDataSaving()) {
+	if (Core::App().settings().superDataSavingNoAvatars()) {
 		if (const auto storageLocation = std::get_if<StorageFileLocation>(&location().data)) {
 			if (storageLocation->type() == StorageFileLocation::Type::PeerPhoto) {
 				cancel();
@@ -209,6 +215,12 @@ void mtpFileLoader::startLoadingWithPartial(const QByteArray &data) {
 		}
 		if (fileOrigin().is<Data::FileOriginPeerPhoto>()
 			|| fileOrigin().is<Data::FileOriginUserPhoto>()) {
+			cancel();
+			return;
+		}
+	}
+	if (Core::App().settings().superDataSavingNoStories()) {
+		if (fileOrigin().is<Data::FileOriginStory>()) {
 			cancel();
 			return;
 		}

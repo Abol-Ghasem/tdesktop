@@ -216,6 +216,12 @@ Settings::Settings()
 , _dialogsNoChatWidthRatio(DefaultDialogsWidthRatio())
 , _videoQuality({ .height = kInitialVideoQuality }) {
 	_superDataSaving = readPref<bool>("super_data_saving", false);
+	_superDataSavingNoAvatars = readPref<bool>("sds_no_avatars", true);
+	_superDataSavingNoStories = readPref<bool>("sds_no_stories", true);
+	_superDataSavingNoLinkPreviews = readPref<bool>("sds_no_link_previews", true);
+	_superDataSavingNoCustomEmoji = readPref<bool>("sds_no_custom_emoji", true);
+	_superDataSavingNoThumbnails = readPref<bool>("sds_no_thumbnails", true);
+	_superDataSavingNoBuffering = readPref<bool>("sds_no_buffering", true);
 }
 
 Settings::~Settings() = default;
@@ -1129,6 +1135,12 @@ void Settings::addFromSerialized(
 		if (stream.status() == QDataStream::Ok) {
 			_prefs = std::move(prefs);
 			_superDataSaving = readPref<bool>("super_data_saving", false);
+			_superDataSavingNoAvatars = readPref<bool>("sds_no_avatars", true);
+			_superDataSavingNoStories = readPref<bool>("sds_no_stories", true);
+			_superDataSavingNoLinkPreviews = readPref<bool>("sds_no_link_previews", true);
+			_superDataSavingNoCustomEmoji = readPref<bool>("sds_no_custom_emoji", true);
+			_superDataSavingNoThumbnails = readPref<bool>("sds_no_thumbnails", true);
+			_superDataSavingNoBuffering = readPref<bool>("sds_no_buffering", true);
 		}
 	}
 	if (!stream.atEnd()) {
@@ -2185,6 +2197,108 @@ void Settings::setSuperDataSaving(bool value) {
 	}
 	_superDataSaving = value;
 	writePref<bool>("super_data_saving", value);
+	_saveDelayed.fire({});
+}
+
+bool Settings::superDataSavingNoAvatars() const {
+	return _superDataSaving.current() && _superDataSavingNoAvatars.current();
+}
+
+rpl::producer<bool> Settings::superDataSavingNoAvatarsValue() const {
+	return _superDataSavingNoAvatars.value();
+}
+
+void Settings::setSuperDataSavingNoAvatars(bool value) {
+	if (_superDataSavingNoAvatars.current() == value) {
+		return;
+	}
+	_superDataSavingNoAvatars = value;
+	writePref<bool>("sds_no_avatars", value);
+	_saveDelayed.fire({});
+}
+
+bool Settings::superDataSavingNoStories() const {
+	return _superDataSaving.current() && _superDataSavingNoStories.current();
+}
+
+rpl::producer<bool> Settings::superDataSavingNoStoriesValue() const {
+	return _superDataSavingNoStories.value();
+}
+
+void Settings::setSuperDataSavingNoStories(bool value) {
+	if (_superDataSavingNoStories.current() == value) {
+		return;
+	}
+	_superDataSavingNoStories = value;
+	writePref<bool>("sds_no_stories", value);
+	_saveDelayed.fire({});
+}
+
+bool Settings::superDataSavingNoLinkPreviews() const {
+	return _superDataSaving.current() && _superDataSavingNoLinkPreviews.current();
+}
+
+rpl::producer<bool> Settings::superDataSavingNoLinkPreviewsValue() const {
+	return _superDataSavingNoLinkPreviews.value();
+}
+
+void Settings::setSuperDataSavingNoLinkPreviews(bool value) {
+	if (_superDataSavingNoLinkPreviews.current() == value) {
+		return;
+	}
+	_superDataSavingNoLinkPreviews = value;
+	writePref<bool>("sds_no_link_previews", value);
+	_saveDelayed.fire({});
+}
+
+bool Settings::superDataSavingNoCustomEmoji() const {
+	return _superDataSaving.current() && _superDataSavingNoCustomEmoji.current();
+}
+
+rpl::producer<bool> Settings::superDataSavingNoCustomEmojiValue() const {
+	return _superDataSavingNoCustomEmoji.value();
+}
+
+void Settings::setSuperDataSavingNoCustomEmoji(bool value) {
+	if (_superDataSavingNoCustomEmoji.current() == value) {
+		return;
+	}
+	_superDataSavingNoCustomEmoji = value;
+	writePref<bool>("sds_no_custom_emoji", value);
+	_saveDelayed.fire({});
+}
+
+bool Settings::superDataSavingNoThumbnails() const {
+	return _superDataSaving.current() && _superDataSavingNoThumbnails.current();
+}
+
+rpl::producer<bool> Settings::superDataSavingNoThumbnailsValue() const {
+	return _superDataSavingNoThumbnails.value();
+}
+
+void Settings::setSuperDataSavingNoThumbnails(bool value) {
+	if (_superDataSavingNoThumbnails.current() == value) {
+		return;
+	}
+	_superDataSavingNoThumbnails = value;
+	writePref<bool>("sds_no_thumbnails", value);
+	_saveDelayed.fire({});
+}
+
+bool Settings::superDataSavingNoBuffering() const {
+	return _superDataSaving.current() && _superDataSavingNoBuffering.current();
+}
+
+rpl::producer<bool> Settings::superDataSavingNoBufferingValue() const {
+	return _superDataSavingNoBuffering.value();
+}
+
+void Settings::setSuperDataSavingNoBuffering(bool value) {
+	if (_superDataSavingNoBuffering.current() == value) {
+		return;
+	}
+	_superDataSavingNoBuffering = value;
+	writePref<bool>("sds_no_buffering", value);
 	_saveDelayed.fire({});
 }
 

@@ -9,6 +9,7 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 
 #include "base/unixtime.h"
 #include "core/application.h"
+#include "core/core_settings.h"
 #include "countries/countries_instance.h"
 #include "base/qt/qt_key_modifiers.h"
 #include "window/window_session_controller.h"
@@ -938,6 +939,9 @@ void WebPage::refreshParentId(not_null<HistoryItem*> realParent) {
 void WebPage::ensurePhotoMediaCreated() const {
 	Expects(_data->photo != nullptr);
 
+	if (Core::App().settings().superDataSavingNoLinkPreviews()) {
+		return;
+	}
 	if (_photoMedia) {
 		return;
 	}

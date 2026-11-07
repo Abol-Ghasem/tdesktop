@@ -7,6 +7,8 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 */
 #include "data/data_auto_download.h"
 
+#include "core/application.h"
+#include "core/core_settings.h"
 #include "data/data_peer.h"
 #include "data/data_photo.h"
 #include "data/data_document.h"
@@ -427,6 +429,9 @@ bool ShouldAutoPlay(
 		const Full &data,
 		not_null<PeerData*> peer,
 		not_null<DocumentData*> document) {
+	if (Core::App().settings().superDataSavingNoBuffering()) {
+		return false;
+	}
 	if (document->sticker()) {
 		return true;
 	}
@@ -450,6 +455,9 @@ bool ShouldAutoPlay(
 		const Full &data,
 		not_null<PeerData*> peer,
 		not_null<PhotoData*> photo) {
+	if (Core::App().settings().superDataSavingNoBuffering()) {
+		return false;
+	}
 	if (!photo->hasVideo()) {
 		return false;
 	}

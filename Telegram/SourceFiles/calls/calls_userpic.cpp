@@ -219,7 +219,7 @@ void Userpic::createCache(Image *image) {
 }
 
 bool Userpic::isGoodPhoto(PhotoData *photo) const {
-	if (Core::App().settings().superDataSaving()) {
+	if (Core::App().settings().superDataSavingNoAvatars()) {
 		return false;
 	}
 	if (!photo || photo->isNull()) {

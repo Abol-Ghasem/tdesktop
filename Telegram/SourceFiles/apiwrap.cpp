@@ -2970,7 +2970,7 @@ void ApiWrap::refreshFileReference(
 			fail();
 		}
 	}, [&](Data::FileOriginUserPhoto data) {
-		if (Core::App().settings().superDataSaving()) {
+		if (Core::App().settings().superDataSavingNoAvatars()) {
 			fail();
 			return;
 		}
@@ -2990,7 +2990,7 @@ void ApiWrap::refreshFileReference(
 			fail();
 		}
 	}, [&](Data::FileOriginPeerPhoto data) {
-		if (Core::App().settings().superDataSaving()) {
+		if (Core::App().settings().superDataSavingNoAvatars()) {
 			fail();
 			return;
 		}
