@@ -7,6 +7,8 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 */
 #include "storage/file_download_mtproto.h"
 
+#include "core/application.h"
+#include "core/core_settings.h"
 #include "data/data_document.h"
 #include "data/data_file_origin.h"
 #include "storage/cache/storage_cache_types.h"
@@ -181,10 +183,36 @@ bool mtpFileLoader::setWebFileSizeHook(int64 size) {
 }
 
 void mtpFileLoader::startLoading() {
+	if (Core::App().settings().superDataSaving()) {
+		if (const auto storageLocation = std::get_if<StorageFileLocation>(&location().data)) {
+			if (storageLocation->type() == StorageFileLocation::Type::PeerPhoto) {
+				cancel();
+				return;
+			}
+		}
+		if (fileOrigin().is<Data::FileOriginPeerPhoto>()
+			|| fileOrigin().is<Data::FileOriginUserPhoto>()) {
+			cancel();
+			return;
+		}
+	}
 	addToQueue();
 }
 
 void mtpFileLoader::startLoadingWithPartial(const QByteArray &data) {
+	if (Core::App().settings().superDataSaving()) {
+		if (const auto storageLocation = std::get_if<StorageFileLocation>(&location().data)) {
+			if (storageLocation->type() == StorageFileLocation::Type::PeerPhoto) {
+				cancel();
+				return;
+			}
+		}
+		if (fileOrigin().is<Data::FileOriginPeerPhoto>()
+			|| fileOrigin().is<Data::FileOriginUserPhoto>()) {
+			cancel();
+			return;
+		}
+	}
 	Expects(data.startsWith("partial:"));
 
 	constexpr auto kPrefix = 8;

@@ -370,6 +370,13 @@ Session::Session(not_null<Main::Session*> session)
 	setupPeerNameViewer();
 	setupUserIsContactViewer();
 
+	Core::App().settings().superDataSavingChanges(
+	) | rpl::on_next([=] {
+		for (const auto &[peerId, peer] : _peers) {
+			_session->changes().peerUpdated(peer.get(), PeerUpdate::Flag::Photo);
+		}
+	}, _lifetime);
+
 	_chatsList.unreadStateChanges(
 	) | rpl::on_next([=] {
 		notifyUnreadBadgeChanged();

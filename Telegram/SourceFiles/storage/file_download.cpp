@@ -13,6 +13,7 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 #include "mainwidget.h"
 #include "mainwindow.h"
 #include "core/application.h"
+#include "core/core_settings.h"
 #include "core/file_location.h"
 #include "storage/storage_account.h"
 #include "storage/file_download_mtproto.h"
@@ -248,6 +249,13 @@ void FileLoader::localLoaded(
 }
 
 void FileLoader::start() {
+	if (Core::App().settings().superDataSaving()) {
+		if (fileOrigin().is<Data::FileOriginPeerPhoto>()
+			|| fileOrigin().is<Data::FileOriginUserPhoto>()) {
+			cancel();
+			return;
+		}
+	}
 	if (_finished || tryLoadLocal()) {
 		return;
 	} else if (_fromCloud == LoadFromLocalOnly) {

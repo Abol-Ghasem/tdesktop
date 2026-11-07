@@ -19,6 +19,7 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 #include "storage/storage_account.h"
 #include "storage/file_download.h"
 #include "core/application.h"
+#include "core/core_settings.h"
 
 namespace {
 
@@ -340,6 +341,15 @@ void PhotoData::load(
 	const auto valid = validSizeIndex(size);
 	const auto existing = existingSizeIndex(size);
 
+	if (Core::App().settings().superDataSaving()) {
+		if (peer != nullptr
+			|| origin.is<Data::FileOriginPeerPhoto>()
+			|| origin.is<Data::FileOriginUserPhoto>()
+			|| _images[valid].location.file().type() == StorageFileLocation::Type::PeerPhoto) {
+			return;
+		}
+	}
+
 	// Could've changed, if the requested size didn't have a location.
 	const auto validSize = static_cast<PhotoSize>(valid);
 	const auto finalCheck = [=] {
@@ -538,6 +548,13 @@ bool PhotoData::hasVideoSmall() const {
 void PhotoData::loadVideo(Data::PhotoSize size, Data::FileOrigin origin) {
 	if (!_videoSizes) {
 		return;
+	}
+	if (Core::App().settings().superDataSaving()) {
+		if (peer != nullptr
+			|| origin.is<Data::FileOriginPeerPhoto>()
+			|| origin.is<Data::FileOriginUserPhoto>()) {
+			return;
+		}
 	}
 	const auto autoLoading = false;
 	const auto finalCheck = [=] {
