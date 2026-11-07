@@ -800,7 +800,7 @@ void PeerPhoto::ready(FullMsgId msgId, ReadyFiles &&files) {
 void PeerPhoto::requestUserPhotos(
 		not_null<UserData*> user,
 		UserPhotoId afterId) {
-	if (Core::App().settings().superDataSaving() || _userPhotosRequests.contains(user)) {
+	if (Core::App().settings().superDataSavingNoAvatars() || _userPhotosRequests.contains(user)) {
 		return;
 	}
 

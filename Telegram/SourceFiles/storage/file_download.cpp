@@ -249,9 +249,15 @@ void FileLoader::localLoaded(
 }
 
 void FileLoader::start() {
-	if (Core::App().settings().superDataSaving()) {
+	if (Core::App().settings().superDataSavingNoAvatars()) {
 		if (fileOrigin().is<Data::FileOriginPeerPhoto>()
 			|| fileOrigin().is<Data::FileOriginUserPhoto>()) {
+			cancel();
+			return;
+		}
+	}
+	if (Core::App().settings().superDataSavingNoStories()) {
+		if (fileOrigin().is<Data::FileOriginStory>()) {
 			cancel();
 			return;
 		}

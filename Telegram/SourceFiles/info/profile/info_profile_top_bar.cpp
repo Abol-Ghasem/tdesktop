@@ -1298,7 +1298,7 @@ void TopBar::setupUserpicButton(
 	}
 
 	const auto openPhoto = [=, peer = _peer] {
-		if (Core::App().settings().superDataSaving()) {
+		if (Core::App().settings().superDataSavingNoAvatars()) {
 			return;
 		}
 		if (const auto id = peer->userpicPhotoId()) {

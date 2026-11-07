@@ -7,6 +7,8 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 */
 #include "data/stickers/data_custom_emoji.h"
 
+#include "core/application.h"
+#include "core/core_settings.h"
 #include "boxes/peers/edit_forum_topic_box.h" // MakeTopicIconEmoji.
 #include "chat_helpers/stickers_emoji_pack.h"
 #include "main/main_app_config.h"
@@ -238,6 +240,9 @@ void CustomEmojiLoader::resolved(not_null<DocumentData*> document) {
 }
 
 void CustomEmojiLoader::load(Fn<void(LoadResult)> loaded) {
+	if (Core::App().settings().superDataSavingNoCustomEmoji()) {
+		return;
+	}
 	if (const auto resolve = std::get_if<Resolve>(&_state)) {
 		resolve->requested = std::move(loaded);
 	} else if (const auto lookup = std::get_if<Lookup>(&_state)) {

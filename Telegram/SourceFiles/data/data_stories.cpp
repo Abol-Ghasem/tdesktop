@@ -10,6 +10,7 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 #include "base/unixtime.h"
 #include "apiwrap.h"
 #include "core/application.h"
+#include "core/core_settings.h"
 #include "data/components/top_peers.h"
 #include "data/data_changes.h"
 #include "data/data_channel.h"
@@ -324,6 +325,12 @@ Story *Stories::applySingle(PeerId peerId, const MTPstoryItem &story) {
 void Stories::requestPeerStories(
 		not_null<PeerData*> peer,
 		Fn<void()> done) {
+	if (Core::App().settings().superDataSavingNoStories()) {
+		if (done) {
+			done();
+		}
+		return;
+	}
 	const auto &[i, ok] = _requestingPeerStories.emplace(peer);
 	if (done) {
 		i->second.push_back(std::move(done));
@@ -718,6 +725,9 @@ void Stories::savedStateChanged(not_null<Story*> story) {
 }
 
 void Stories::loadMore(StorySourcesList list) {
+	if (Core::App().settings().superDataSavingNoStories()) {
+		return;
+	}
 	const auto index = static_cast<int>(list);
 	if (_loadMoreRequestId[index] || _sourcesLoaded[index]) {
 		return;

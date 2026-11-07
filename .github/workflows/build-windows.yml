@@ -6,11 +6,11 @@ on:
       config:
         description: 'Build Configuration'
         required: true
-        default: 'Release'
+        default: 'Debug'
         type: choice
         options:
-          - Release
           - Debug
+          - Release
 
 jobs:
   build:
@@ -103,8 +103,8 @@ jobs:
 
       - name: Prepare Libraries
         run: |
-          set PREPARE_FLAGS=silent qt6
-          if "${{ inputs.config }}" == "Debug" set PREPARE_FLAGS=skip-release silent qt6
+          set PREPARE_FLAGS=skip-release silent qt6
+          if "${{ inputs.config }}" == "Release" set PREPARE_FLAGS=silent qt6
           %TBUILD%\%REPO_NAME%\Telegram\build\prepare\win.bat %PREPARE_FLAGS%
 
       - name: Free up disk space

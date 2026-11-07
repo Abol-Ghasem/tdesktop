@@ -341,11 +341,21 @@ void PhotoData::load(
 	const auto valid = validSizeIndex(size);
 	const auto existing = existingSizeIndex(size);
 
-	if (Core::App().settings().superDataSaving()) {
+	if (Core::App().settings().superDataSavingNoAvatars()) {
 		if (peer != nullptr
 			|| origin.is<Data::FileOriginPeerPhoto>()
 			|| origin.is<Data::FileOriginUserPhoto>()
 			|| _images[valid].location.file().type() == StorageFileLocation::Type::PeerPhoto) {
+			return;
+		}
+	}
+	if (Core::App().settings().superDataSavingNoStories()) {
+		if (origin.is<Data::FileOriginStory>()) {
+			return;
+		}
+	}
+	if (Core::App().settings().superDataSavingNoThumbnails()) {
+		if (autoLoading && valid != PhotoSizeIndex(PhotoSize::Large)) {
 			return;
 		}
 	}
@@ -549,10 +559,15 @@ void PhotoData::loadVideo(Data::PhotoSize size, Data::FileOrigin origin) {
 	if (!_videoSizes) {
 		return;
 	}
-	if (Core::App().settings().superDataSaving()) {
+	if (Core::App().settings().superDataSavingNoAvatars()) {
 		if (peer != nullptr
 			|| origin.is<Data::FileOriginPeerPhoto>()
 			|| origin.is<Data::FileOriginUserPhoto>()) {
+			return;
+		}
+	}
+	if (Core::App().settings().superDataSavingNoStories()) {
+		if (origin.is<Data::FileOriginStory>()) {
 			return;
 		}
 	}
