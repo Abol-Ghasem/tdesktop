@@ -25,7 +25,7 @@ jobs:
         shell: cmd
 
     steps:
-      - name: Free up disk space on C:
+      - name: "Free up disk space on C drive"
         shell: pwsh
         run: |
           Write-Host "Free disk space before cleanup:"
