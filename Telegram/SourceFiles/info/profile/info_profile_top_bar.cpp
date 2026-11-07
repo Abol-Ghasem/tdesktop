@@ -24,6 +24,7 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 #include "calls/calls_instance.h"
 #include "chat_helpers/stickers_lottie.h"
 #include "core/application.h"
+#include "core/core_settings.h"
 #include "core/shortcuts.h"
 #include "data/components/recent_shared_media_gifts.h"
 #include "data/data_birthday.h"
@@ -1297,6 +1298,9 @@ void TopBar::setupUserpicButton(
 	}
 
 	const auto openPhoto = [=, peer = _peer] {
+		if (Core::App().settings().superDataSaving()) {
+			return;
+		}
 		if (const auto id = peer->userpicPhotoId()) {
 			if (const auto photo = peer->owner().photo(id); photo->date()) {
 				controller->openPhoto(photo, peer);

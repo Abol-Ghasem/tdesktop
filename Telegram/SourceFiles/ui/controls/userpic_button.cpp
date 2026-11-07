@@ -28,6 +28,7 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 #include "history/history.h"
 #include "calls/calls_instance.h"
 #include "core/application.h"
+#include "core/core_settings.h"
 #include "ui/effects/premium_graphics.h"
 #include "ui/layers/generic_box.h"
 #include "ui/text/text_utilities.h"
@@ -556,6 +557,9 @@ void UserpicButton::openPeerPhoto() {
 		choosePhotoLocally();
 		return;
 	}
+	if (Core::App().settings().superDataSaving()) {
+		return;
+	}
 
 	const auto id = _peer->userpicPhotoId();
 	if (!id) {
@@ -859,7 +863,7 @@ void UserpicButton::processPeerPhoto() {
 void UserpicButton::updateCursor() {
 	Expects(_role == Role::OpenPhoto);
 
-	const auto pointer = _canOpenPhoto
+	const auto pointer = (_canOpenPhoto && !Core::App().settings().superDataSaving())
 		|| (_changeOverlayEnabled && _cursorInChangeOverlay);
 	setPointerCursor(pointer);
 }

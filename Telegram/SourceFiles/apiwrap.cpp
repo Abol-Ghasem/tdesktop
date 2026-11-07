@@ -71,6 +71,7 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 #include "data/data_history_messages.h"
 #include "core/core_cloud_password.h"
 #include "core/application.h"
+#include "core/core_settings.h"
 #include "base/unixtime.h"
 #include "base/random.h"
 #include "base/call_delayed.h"
@@ -2969,6 +2970,10 @@ void ApiWrap::refreshFileReference(
 			fail();
 		}
 	}, [&](Data::FileOriginUserPhoto data) {
+		if (Core::App().settings().superDataSaving()) {
+			fail();
+			return;
+		}
 		if (const auto user = _session->data().user(data.userId)) {
 			request(MTPphotos_GetUserPhotos(
 				user->inputUser(),
@@ -2985,6 +2990,10 @@ void ApiWrap::refreshFileReference(
 			fail();
 		}
 	}, [&](Data::FileOriginPeerPhoto data) {
+		if (Core::App().settings().superDataSaving()) {
+			fail();
+			return;
+		}
 		const auto peer = _session->data().peer(data.peerId);
 		if (const auto channel = peer->asChannel()) {
 			request(MTPchannels_GetFullChannel(

@@ -1000,6 +1000,11 @@ public:
 	[[nodiscard]] rpl::producer<bool> chatFiltersHorizontalChanges() const;
 	void setChatFiltersHorizontal(bool value);
 
+	[[nodiscard]] bool superDataSaving() const;
+	[[nodiscard]] rpl::producer<bool> superDataSavingValue() const;
+	[[nodiscard]] rpl::producer<bool> superDataSavingChanges() const;
+	void setSuperDataSaving(bool value);
+
 	[[nodiscard]] Ui::ChatsFiltersTabsMode chatFiltersTabsMode() const;
 	[[nodiscard]] auto chatFiltersTabsModeValue() const
 	-> rpl::producer<Ui::ChatsFiltersTabsMode>;
@@ -1200,6 +1205,7 @@ private:
 	rpl::variable<int> _ivZoom = 0;
 	Media::VideoQuality _videoQuality;
 	rpl::variable<bool> _chatFiltersHorizontal = false;
+	rpl::variable<bool> _superDataSaving = false;
 	rpl::variable<Ui::ChatsFiltersTabsMode> _chatFiltersTabsMode
 		= Ui::ChatsFiltersTabsMode::Default;
 	base::flat_map<QByteArray, QByteArray> _prefs;

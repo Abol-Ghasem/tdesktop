@@ -23,6 +23,8 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 #include "data/data_user_photos.h"
 #include "history/history.h"
 #include "main/main_session.h"
+#include "core/application.h"
+#include "core/core_settings.h"
 #include "media/media_video_encode.h"
 #include "storage/file_upload.h"
 #include "storage/localimageloader.h"
@@ -798,7 +800,7 @@ void PeerPhoto::ready(FullMsgId msgId, ReadyFiles &&files) {
 void PeerPhoto::requestUserPhotos(
 		not_null<UserData*> user,
 		UserPhotoId afterId) {
-	if (_userPhotosRequests.contains(user)) {
+	if (Core::App().settings().superDataSaving() || _userPhotosRequests.contains(user)) {
 		return;
 	}
 

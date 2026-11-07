@@ -17,6 +17,8 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 #include "data/data_file_origin.h"
 #include "ui/empty_userpic.h"
 #include "ui/painter.h"
+#include "core/application.h"
+#include "core/core_settings.h"
 #include "apiwrap.h" // requestFullPeer.
 #include "styles/style_calls.h"
 
@@ -217,6 +219,9 @@ void Userpic::createCache(Image *image) {
 }
 
 bool Userpic::isGoodPhoto(PhotoData *photo) const {
+	if (Core::App().settings().superDataSaving()) {
+		return false;
+	}
 	if (!photo || photo->isNull()) {
 		return false;
 	}

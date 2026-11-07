@@ -212,6 +212,36 @@ void BuildDataStorageSection(SectionBuilder &builder) {
 		}, askDownloadPath->lifetime());
 	}
 
+	const auto superDataSaving = builder.addButton({
+		.id = u"advanced/super_data_saving"_q,
+		.title = rpl::single(QString::fromUtf8("سوپر دیتا سیوینگ")),
+		.st = &st::settingsButtonNoIcon,
+		.toggled = Core::App().settings().superDataSavingValue(),
+		.keywords = {
+			u"super data saving"_q,
+			u"data saving"_q,
+			u"data"_q,
+			QString::fromUtf8("سوپر دیتا سیوینگ"),
+			QString::fromUtf8("دیتا سیوینگ"),
+			QString::fromUtf8("پروفایل"),
+			QString::fromUtf8("عکس"),
+			QString::fromUtf8("عکس پروفایل"),
+			u"profile"_q,
+			u"photo"_q,
+			u"avatar"_q,
+		},
+	});
+
+	if (superDataSaving) {
+		superDataSaving->toggledValue(
+		) | rpl::filter([](bool checked) {
+			return (checked != Core::App().settings().superDataSaving());
+		}) | rpl::on_next([=](bool checked) {
+			Core::App().settings().setSuperDataSaving(checked);
+			Core::App().saveSettingsDelayed();
+		}, superDataSaving->lifetime());
+	}
+
 	builder.addSkip(st::settingsCheckboxesSkip);
 }
 

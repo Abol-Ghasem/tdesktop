@@ -215,6 +215,7 @@ Settings::Settings()
 , _dialogsWithChatWidthRatio(DefaultDialogsWidthRatio())
 , _dialogsNoChatWidthRatio(DefaultDialogsWidthRatio())
 , _videoQuality({ .height = kInitialVideoQuality }) {
+	_superDataSaving = readPref<bool>("super_data_saving", false);
 }
 
 Settings::~Settings() = default;
@@ -1127,6 +1128,7 @@ void Settings::addFromSerialized(
 		}
 		if (stream.status() == QDataStream::Ok) {
 			_prefs = std::move(prefs);
+			_superDataSaving = readPref<bool>("super_data_saving", false);
 		}
 	}
 	if (!stream.atEnd()) {
@@ -1951,6 +1953,7 @@ void Settings::resetOnLastLogout() {
 	_recordVideoMessages = false;
 	_videoQuality = {};
 	_chatFiltersHorizontal = false;
+	_superDataSaving = false;
 	_chatFiltersTabsMode = Ui::ChatsFiltersTabsMode::Default;
 	_pullToNextChannel = true;
 	_quickDialogAction = Dialogs::Ui::QuickDialogAction::Disabled;
@@ -2162,6 +2165,27 @@ rpl::producer<bool> Settings::chatFiltersHorizontalChanges() const {
 
 void Settings::setChatFiltersHorizontal(bool value) {
 	_chatFiltersHorizontal = value;
+}
+
+bool Settings::superDataSaving() const {
+	return _superDataSaving.current();
+}
+
+rpl::producer<bool> Settings::superDataSavingValue() const {
+	return _superDataSaving.value();
+}
+
+rpl::producer<bool> Settings::superDataSavingChanges() const {
+	return _superDataSaving.changes();
+}
+
+void Settings::setSuperDataSaving(bool value) {
+	if (_superDataSaving.current() == value) {
+		return;
+	}
+	_superDataSaving = value;
+	writePref<bool>("super_data_saving", value);
+	_saveDelayed.fire({});
 }
 
 Ui::ChatsFiltersTabsMode Settings::chatFiltersTabsMode() const {

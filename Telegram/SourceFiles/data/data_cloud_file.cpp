@@ -7,6 +7,8 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 */
 #include "data/data_cloud_file.h"
 
+#include "core/application.h"
+#include "core/core_settings.h"
 #include "data/data_file_origin.h"
 #include "data/data_session.h"
 #include "storage/cache/storage_cache_database.h"
@@ -97,6 +99,13 @@ bool CloudImage::loadedOnce() const {
 }
 
 void CloudImage::load(not_null<Main::Session*> session, FileOrigin origin) {
+	if (Core::App().settings().superDataSaving()) {
+		if (_file.location.file().type() == StorageFileLocation::Type::PeerPhoto
+			|| origin.is<Data::FileOriginPeerPhoto>()
+			|| origin.is<Data::FileOriginUserPhoto>()) {
+			return;
+		}
+	}
 	const auto autoLoading = false;
 	const auto finalCheck = [=] {
 		if (const auto active = activeView()) {
@@ -257,6 +266,13 @@ void LoadCloudFile(
 		|| !file.location.valid()
 		|| (finalCheck && !finalCheck())) {
 		return;
+	}
+	if (Core::App().settings().superDataSaving()) {
+		if (file.location.file().type() == StorageFileLocation::Type::PeerPhoto
+			|| origin.is<Data::FileOriginPeerPhoto>()
+			|| origin.is<Data::FileOriginUserPhoto>()) {
+			return;
+		}
 	}
 	if (file.byteSize < 0 || file.byteSize > Storage::kMaxFileInMemory) {
 		file.flags |= CloudFile::Flag::Failed;

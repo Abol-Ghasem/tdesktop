@@ -36,6 +36,7 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 #include "main/main_app_config.h"
 #include "mtproto/mtproto_config.h"
 #include "core/application.h"
+#include "core/core_settings.h"
 #include "core/click_handler_types.h"
 #include "window/notifications_manager.h"
 #include "window/window_session_controller.h"
@@ -414,6 +415,9 @@ void PeerData::setUserpicPhoto(const MTPPhoto &data) {
 }
 
 QImage *PeerData::userpicCloudImage(Ui::PeerUserpicView &view) const {
+	if (Core::App().settings().superDataSaving()) {
+		return nullptr;
+	}
 	if (!_userpic.isCurrentView(view.cloud)) {
 		if (!_userpic.empty()) {
 			view.cloud = _userpic.createView();
@@ -462,6 +466,9 @@ void PeerData::paintUserpic(
 }
 
 void PeerData::loadUserpic() {
+	if (Core::App().settings().superDataSaving()) {
+		return;
+	}
 	_userpic.load(&session(), userpicOrigin());
 }
 
@@ -470,11 +477,14 @@ bool PeerData::hasUserpic() const {
 }
 
 Ui::PeerUserpicView PeerData::activeUserpicView() {
+	if (Core::App().settings().superDataSaving()) {
+		return {};
+	}
 	return { .cloud = _userpic.empty() ? nullptr : _userpic.activeView() };
 }
 
 Ui::PeerUserpicView PeerData::createUserpicView() {
-	if (_userpic.empty()) {
+	if (_userpic.empty() || Core::App().settings().superDataSaving()) {
 		return {};
 	}
 	auto result = _userpic.createView();
@@ -483,7 +493,7 @@ Ui::PeerUserpicView PeerData::createUserpicView() {
 }
 
 bool PeerData::useEmptyUserpic(Ui::PeerUserpicView &view) const {
-	return !userpicCloudImage(view);
+	return Core::App().settings().superDataSaving() || !userpicCloudImage(view);
 }
 
 InMemoryKey PeerData::userpicUniqueKey(Ui::PeerUserpicView &view) const {
@@ -560,7 +570,7 @@ PhotoId PeerData::userpicPhotoId() const {
 }
 
 bool PeerData::userpicHasVideo() const {
-	return _userpicHasVideo != 0;
+	return !Core::App().settings().superDataSaving() && (_userpicHasVideo != 0);
 }
 
 Data::FileOrigin PeerData::userpicOrigin() const {
