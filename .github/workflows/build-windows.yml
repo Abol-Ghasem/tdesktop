@@ -25,6 +25,33 @@ jobs:
         shell: cmd
 
     steps:
+      - name: Free up disk space on C:
+        shell: pwsh
+        run: |
+          Write-Host "Free disk space before cleanup:"
+          Get-PSDrive C | Format-Table -AutoSize
+          $paths = @(
+            "C:\Android",
+            "C:\Program Files\Android",
+            "C:\Program Files (x86)\Android",
+            "C:\Program Files\dotnet",
+            "C:\Program Files (x86)\dotnet",
+            "C:\Program Files\Java",
+            "C:\Program Files (x86)\Java",
+            "C:\hostedtoolcache\windows\Ruby",
+            "C:\hostedtoolcache\windows\go",
+            "C:\hostedtoolcache\windows\Java*",
+            "C:\hostedtoolcache\windows\CodeQL"
+          )
+          foreach ($p in $paths) {
+            Get-Item -Path $p -ErrorAction SilentlyContinue | ForEach-Object {
+              Write-Host "Deleting $($_.FullName)..."
+              Remove-Item -Recurse -Force -ErrorAction SilentlyContinue $_.FullName
+            }
+          }
+          Write-Host "Free disk space after cleanup:"
+          Get-PSDrive C | Format-Table -AutoSize
+
       - name: Prepare directories
         run: |
           mkdir %userprofile%\TBuild\Libraries
@@ -106,6 +133,10 @@ jobs:
           set PREPARE_FLAGS=skip-release silent qt6
           if "${{ inputs.config }}" == "Release" set PREPARE_FLAGS=silent qt6
           %TBUILD%\%REPO_NAME%\Telegram\build\prepare\win.bat %PREPARE_FLAGS%
+
+      - name: Free up intermediate library build space
+        shell: bash
+        run: find $LibrariesPath '(' '(' ! '(' -name '*.lib' -o -name '*.a' -o -name '*.exe' -o -name '*.h' -o -name '*.hpp' -o -name '*.inc' -o -name '*.cmake' -o -name '*.pc' -o -path '*/include/*' -o -path '*/objects-*' -o -path '*/cache_keys/*' -o -path '*/patches/*' -o -path '*/nv-codec-headers/*' -o -path '*/src/wallet_engine/*' -o '(' '(' -path '*/tlottie/*' -o -path '*/wallet-engine/*' ')' ! -path '*/target/*' ')' ')' -type f ')' -o '(' -empty ! -path '*/tlottie/*' ! -path '*/wallet-engine/*' ')' ')' -delete
 
       - name: Build Telegram
         run: |
