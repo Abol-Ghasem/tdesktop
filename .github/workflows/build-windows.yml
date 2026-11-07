@@ -107,10 +107,6 @@ jobs:
           if "${{ inputs.config }}" == "Release" set PREPARE_FLAGS=silent qt6
           %TBUILD%\%REPO_NAME%\Telegram\build\prepare\win.bat %PREPARE_FLAGS%
 
-      - name: Free up disk space
-        shell: bash
-        run: find $LibrariesPath '(' '(' ! '(' -name '*.lib' -o -name '*.a' -o -name '*.exe' -o -name '*.h' -o -name '*.hpp' -o -name '*.inc' -o -name '*.cmake' -o -name '*.pc' -o -path '*/include/*' -o -path '*/objects-*' -o -path '*/cache_keys/*' -o -path '*/patches/*' -o -path '*/nv-codec-headers/*' ')' -type f ')' -o -empty ')' -delete
-
       - name: Build Telegram
         run: |
           cd %TBUILD%\%REPO_NAME%\Telegram
