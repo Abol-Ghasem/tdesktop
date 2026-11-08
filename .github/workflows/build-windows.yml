@@ -68,6 +68,7 @@ jobs:
         with:
           submodules: recursive
           path: ${{ env.TBUILD }}\${{ env.REPO_NAME }}
+          persist-credentials: false
 
       - name: First set up
         shell: bash
@@ -84,6 +85,10 @@ jobs:
 
           git config --global user.email "ci@example.com"
           git config --global user.name "CI"
+          git config --global credential.helper ""
+          git config --system credential.helper ""
+          git config --global --unset-all http.https://github.com/.extraheader || true
+          git config --system --unset-all http.https://github.com/.extraheader || true
 
       - name: Setup MSVC
         uses: ilammy/msvc-dev-cmd@v1
@@ -129,6 +134,8 @@ jobs:
           restore-keys: ${{ runner.OS }}-x64-qt6-
 
       - name: Prepare Libraries
+        env:
+          GIT_TERMINAL_PROMPT: "0"
         run: |
           set PREPARE_FLAGS=skip-release silent qt6
           if "${{ inputs.config }}" == "Release" set PREPARE_FLAGS=silent qt6
