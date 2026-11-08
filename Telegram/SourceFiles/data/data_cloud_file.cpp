@@ -100,14 +100,17 @@ bool CloudImage::loadedOnce() const {
 
 void CloudImage::load(not_null<Main::Session*> session, FileOrigin origin) {
 	if (Core::App().settings().superDataSavingNoAvatars()) {
-		if (_file.location.file().type() == StorageFileLocation::Type::PeerPhoto
-			|| origin.is<Data::FileOriginPeerPhoto>()
-			|| origin.is<Data::FileOriginUserPhoto>()) {
+		const auto storageLocation = std::get_if<StorageFileLocation>(
+			&_file.location.file().data);
+		if ((storageLocation
+				&& storageLocation->type() == StorageFileLocation::Type::PeerPhoto)
+			|| v::is<Data::FileOriginPeerPhoto>(origin.data)
+			|| v::is<Data::FileOriginUserPhoto>(origin.data)) {
 			return;
 		}
 	}
 	if (Core::App().settings().superDataSavingNoStories()) {
-		if (origin.is<Data::FileOriginStory>()) {
+		if (v::is<Data::FileOriginStory>(origin.data)) {
 			return;
 		}
 	}
@@ -273,14 +276,17 @@ void LoadCloudFile(
 		return;
 	}
 	if (Core::App().settings().superDataSavingNoAvatars()) {
-		if (file.location.file().type() == StorageFileLocation::Type::PeerPhoto
-			|| origin.is<Data::FileOriginPeerPhoto>()
-			|| origin.is<Data::FileOriginUserPhoto>()) {
+		const auto storageLocation = std::get_if<StorageFileLocation>(
+			&file.location.file().data);
+		if ((storageLocation
+				&& storageLocation->type() == StorageFileLocation::Type::PeerPhoto)
+			|| v::is<Data::FileOriginPeerPhoto>(origin.data)
+			|| v::is<Data::FileOriginUserPhoto>(origin.data)) {
 			return;
 		}
 	}
 	if (Core::App().settings().superDataSavingNoStories()) {
-		if (origin.is<Data::FileOriginStory>()) {
+		if (v::is<Data::FileOriginStory>(origin.data)) {
 			return;
 		}
 	}

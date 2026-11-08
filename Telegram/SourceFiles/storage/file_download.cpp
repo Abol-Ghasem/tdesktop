@@ -250,14 +250,14 @@ void FileLoader::localLoaded(
 
 void FileLoader::start() {
 	if (Core::App().settings().superDataSavingNoAvatars()) {
-		if (fileOrigin().is<Data::FileOriginPeerPhoto>()
-			|| fileOrigin().is<Data::FileOriginUserPhoto>()) {
+		if (v::is<Data::FileOriginPeerPhoto>(fileOrigin().data)
+			|| v::is<Data::FileOriginUserPhoto>(fileOrigin().data)) {
 			cancel();
 			return;
 		}
 	}
 	if (Core::App().settings().superDataSavingNoStories()) {
-		if (fileOrigin().is<Data::FileOriginStory>()) {
+		if (v::is<Data::FileOriginStory>(fileOrigin().data)) {
 			cancel();
 			return;
 		}

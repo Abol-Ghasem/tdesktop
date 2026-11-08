@@ -342,15 +342,18 @@ void PhotoData::load(
 	const auto existing = existingSizeIndex(size);
 
 	if (Core::App().settings().superDataSavingNoAvatars()) {
+		const auto storageLocation = std::get_if<StorageFileLocation>(
+			&_images[valid].location.file().data);
 		if (peer != nullptr
-			|| origin.is<Data::FileOriginPeerPhoto>()
-			|| origin.is<Data::FileOriginUserPhoto>()
-			|| _images[valid].location.file().type() == StorageFileLocation::Type::PeerPhoto) {
+			|| v::is<Data::FileOriginPeerPhoto>(origin.data)
+			|| v::is<Data::FileOriginUserPhoto>(origin.data)
+			|| (storageLocation
+				&& storageLocation->type() == StorageFileLocation::Type::PeerPhoto)) {
 			return;
 		}
 	}
 	if (Core::App().settings().superDataSavingNoStories()) {
-		if (origin.is<Data::FileOriginStory>()) {
+		if (v::is<Data::FileOriginStory>(origin.data)) {
 			return;
 		}
 	}
@@ -561,13 +564,13 @@ void PhotoData::loadVideo(Data::PhotoSize size, Data::FileOrigin origin) {
 	}
 	if (Core::App().settings().superDataSavingNoAvatars()) {
 		if (peer != nullptr
-			|| origin.is<Data::FileOriginPeerPhoto>()
-			|| origin.is<Data::FileOriginUserPhoto>()) {
+			|| v::is<Data::FileOriginPeerPhoto>(origin.data)
+			|| v::is<Data::FileOriginUserPhoto>(origin.data)) {
 			return;
 		}
 	}
 	if (Core::App().settings().superDataSavingNoStories()) {
-		if (origin.is<Data::FileOriginStory>()) {
+		if (v::is<Data::FileOriginStory>(origin.data)) {
 			return;
 		}
 	}
