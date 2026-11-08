@@ -146,23 +146,24 @@ jobs:
           x64 ^
           qt6 ^
           -D TDESKTOP_API_TEST=ON ^
-          -D CMAKE_CONFIGURATION_TYPES=${{ inputs.config || 'Release' }} ^
+          -D CMAKE_CONFIGURATION_TYPES=${{ inputs.config || 'Debug' }} ^
           -D CMAKE_COMPILE_WARNING_AS_ERROR=OFF ^
+          -D CMAKE_MSVC_DEBUG_INFORMATION_FORMAT= ^
           -D DESKTOP_APP_DISABLE_AUTOUPDATE=ON ^
           -D DESKTOP_APP_DISABLE_CRASH_REPORTS=ON
 
-          cmake --build ..\out --config ${{ inputs.config || 'Release' }} --parallel
+          cmake --build ..\out --config ${{ inputs.config || 'Debug' }} --target Telegram
 
       - name: Collect Artifact
         run: |
-          set OUT=%TBUILD%\%REPO_NAME%\out\${{ inputs.config || 'Release' }}
           mkdir %GITHUB_WORKSPACE%\artifact
-          if exist %OUT%\Telegram.exe copy %OUT%\Telegram.exe %GITHUB_WORKSPACE%\artifact\
-          if exist %OUT%\Updater.exe copy %OUT%\Updater.exe %GITHUB_WORKSPACE%\artifact\
+          for /r %TBUILD%\%REPO_NAME%\out %%f in (Telegram.exe) do copy /y "%%f" %GITHUB_WORKSPACE%\artifact\
+          for /r %TBUILD%\%REPO_NAME%\out %%f in (Updater.exe) do copy /y "%%f" %GITHUB_WORKSPACE%\artifact\
+          dir %GITHUB_WORKSPACE%\artifact\
 
       - name: Upload Telegram.exe Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Telegram-Windows-x64-${{ inputs.config || 'Release' }}
+          name: Telegram-Windows-x64-${{ inputs.config || 'Debug' }}
           path: artifact\
           retention-days: 14
