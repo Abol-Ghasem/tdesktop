@@ -804,14 +804,14 @@ void MainMenu::setupMenu() {
 			toggle);
 	}, _nightThemeToggle->lifetime());
 
-	Core::App().settings().systemDarkModeValue(
-	) | rpl::on_next([=](std::optional<bool> darkMode) {
-		const auto darkModeEnabled
-			= Core::App().settings().systemDarkModeEnabled();
-		if (darkModeEnabled && darkMode.has_value()) {
-			_nightThemeSwitches.fire_copy(*darkMode);
-		}
-	}, _nightThemeToggle->lifetime());
+	addAction(
+		rpl::single(QString::fromUtf8("سوپر دیتا سیوینگ")),
+		{ &st::menuIconStorage }
+	)->toggleOn(Core::App().settings().superDataSavingValue())->toggledChanges(
+	) | rpl::on_next([=](bool on) {
+		Core::App().settings().setSuperDataSaving(on);
+		Core::App().saveSettingsDelayed();
+	}, _menu->lifetime());
 }
 
 void MainMenu::resizeEvent(QResizeEvent *e) {

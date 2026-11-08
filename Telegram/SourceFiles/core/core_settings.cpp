@@ -222,6 +222,18 @@ Settings::Settings()
 	_superDataSavingNoCustomEmoji = readPref<bool>("sds_no_custom_emoji", true);
 	_superDataSavingNoThumbnails = readPref<bool>("sds_no_thumbnails", true);
 	_superDataSavingNoBuffering = readPref<bool>("sds_no_buffering", true);
+	_superDataSavingNoStickers = readPref<bool>("sds_no_stickers", true);
+	_superDataSavingWhitelistEnabled = readPref<bool>("sds_wl_enabled", false);
+	const auto wlStr = QString::fromUtf8(readPref<QByteArray>("sds_wl_ids", QByteArray()));
+	auto wlList = std::vector<uint64>();
+	for (const auto &idStr : wlStr.split(',', Qt::SkipEmptyParts)) {
+		bool ok = false;
+		const auto id = idStr.trimmed().toULongLong(&ok);
+		if (ok && id != 0) {
+			wlList.push_back(id);
+		}
+	}
+	_superDataSavingWhitelist = std::move(wlList);
 }
 
 Settings::~Settings() = default;
@@ -1141,6 +1153,18 @@ void Settings::addFromSerialized(
 			_superDataSavingNoCustomEmoji = readPref<bool>("sds_no_custom_emoji", true);
 			_superDataSavingNoThumbnails = readPref<bool>("sds_no_thumbnails", true);
 			_superDataSavingNoBuffering = readPref<bool>("sds_no_buffering", true);
+			_superDataSavingNoStickers = readPref<bool>("sds_no_stickers", true);
+			_superDataSavingWhitelistEnabled = readPref<bool>("sds_wl_enabled", false);
+			const auto wlStr = QString::fromUtf8(readPref<QByteArray>("sds_wl_ids", QByteArray()));
+			auto wlList = std::vector<uint64>();
+			for (const auto &idStr : wlStr.split(',', Qt::SkipEmptyParts)) {
+				bool ok = false;
+				const auto id = idStr.trimmed().toULongLong(&ok);
+				if (ok && id != 0) {
+					wlList.push_back(id);
+				}
+			}
+			_superDataSavingWhitelist = std::move(wlList);
 		}
 	}
 	if (!stream.atEnd()) {
@@ -2299,6 +2323,72 @@ void Settings::setSuperDataSavingNoBuffering(bool value) {
 	}
 	_superDataSavingNoBuffering = value;
 	writePref<bool>("sds_no_buffering", value);
+	_saveDelayed.fire({});
+}
+
+bool Settings::superDataSavingNoStickers() const {
+	return _superDataSaving.current() && _superDataSavingNoStickers.current();
+}
+
+rpl::producer<bool> Settings::superDataSavingNoStickersValue() const {
+	return _superDataSavingNoStickers.value();
+}
+
+void Settings::setSuperDataSavingNoStickers(bool value) {
+	if (_superDataSavingNoStickers.current() == value) {
+		return;
+	}
+	_superDataSavingNoStickers = value;
+	writePref<bool>("sds_no_stickers", value);
+	_saveDelayed.fire({});
+}
+
+bool Settings::superDataSavingWhitelistEnabled() const {
+	return _superDataSaving.current() && _superDataSavingWhitelistEnabled.current();
+}
+
+rpl::producer<bool> Settings::superDataSavingWhitelistEnabledValue() const {
+	return _superDataSavingWhitelistEnabled.value();
+}
+
+void Settings::setSuperDataSavingWhitelistEnabled(bool value) {
+	if (_superDataSavingWhitelistEnabled.current() == value) {
+		return;
+	}
+	_superDataSavingWhitelistEnabled = value;
+	writePref<bool>("sds_wl_enabled", value);
+	_saveDelayed.fire({});
+}
+
+std::vector<uint64> Settings::superDataSavingWhitelist() const {
+	return _superDataSavingWhitelist.current();
+}
+
+rpl::producer<std::vector<uint64>> Settings::superDataSavingWhitelistValue() const {
+	return _superDataSavingWhitelist.value();
+}
+
+bool Settings::isPeerInSuperDataSavingWhitelist(uint64 peerIdBare) const {
+	const auto &wl = _superDataSavingWhitelist.current();
+	return std::find(wl.begin(), wl.end(), peerIdBare) != wl.end();
+}
+
+void Settings::setPeerInSuperDataSavingWhitelist(uint64 peerIdBare, bool inWhitelist) {
+	auto wl = _superDataSavingWhitelist.current();
+	const auto it = std::find(wl.begin(), wl.end(), peerIdBare);
+	if (inWhitelist && it == wl.end()) {
+		wl.push_back(peerIdBare);
+	} else if (!inWhitelist && it != wl.end()) {
+		wl.erase(it);
+	} else {
+		return;
+	}
+	QStringList strList;
+	for (const auto id : wl) {
+		strList.append(QString::number(id));
+	}
+	_superDataSavingWhitelist = std::move(wl);
+	writePref<QByteArray>("sds_wl_ids", strList.join(',').toUtf8());
 	_saveDelayed.fire({});
 }
 

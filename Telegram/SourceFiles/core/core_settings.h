@@ -1029,6 +1029,19 @@ public:
 	[[nodiscard]] rpl::producer<bool> superDataSavingNoBufferingValue() const;
 	void setSuperDataSavingNoBuffering(bool value);
 
+	[[nodiscard]] bool superDataSavingNoStickers() const;
+	[[nodiscard]] rpl::producer<bool> superDataSavingNoStickersValue() const;
+	void setSuperDataSavingNoStickers(bool value);
+
+	[[nodiscard]] bool superDataSavingWhitelistEnabled() const;
+	[[nodiscard]] rpl::producer<bool> superDataSavingWhitelistEnabledValue() const;
+	void setSuperDataSavingWhitelistEnabled(bool value);
+
+	[[nodiscard]] std::vector<uint64> superDataSavingWhitelist() const;
+	[[nodiscard]] rpl::producer<std::vector<uint64>> superDataSavingWhitelistValue() const;
+	[[nodiscard]] bool isPeerInSuperDataSavingWhitelist(uint64 peerIdBare) const;
+	void setPeerInSuperDataSavingWhitelist(uint64 peerIdBare, bool inWhitelist);
+
 	[[nodiscard]] Ui::ChatsFiltersTabsMode chatFiltersTabsMode() const;
 	[[nodiscard]] auto chatFiltersTabsModeValue() const
 	-> rpl::producer<Ui::ChatsFiltersTabsMode>;
@@ -1236,6 +1249,9 @@ private:
 	rpl::variable<bool> _superDataSavingNoCustomEmoji = true;
 	rpl::variable<bool> _superDataSavingNoThumbnails = true;
 	rpl::variable<bool> _superDataSavingNoBuffering = true;
+	rpl::variable<bool> _superDataSavingNoStickers = true;
+	rpl::variable<bool> _superDataSavingWhitelistEnabled = false;
+	rpl::variable<std::vector<uint64>> _superDataSavingWhitelist;
 	rpl::variable<Ui::ChatsFiltersTabsMode> _chatFiltersTabsMode
 		= Ui::ChatsFiltersTabsMode::Default;
 	base::flat_map<QByteArray, QByteArray> _prefs;

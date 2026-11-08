@@ -304,6 +304,7 @@ private:
 
 	void addHidePromotion();
 	void addTogglePin();
+	void addSuperDataSavingWhitelistAction();
 	void addToggleMuteSubmenu(bool addSeparator);
 	void addSupportInfo();
 	void addInfo();
@@ -582,6 +583,23 @@ void Filler::addTogglePin() {
 		(entry->isPinnedDialog(filterId)
 			? &st::menuIconUnpin
 			: &st::menuIconPin));
+}
+
+void Filler::addSuperDataSavingWhitelistAction() {
+	if (!_peer) {
+		return;
+	}
+	const auto peerId = _peer->id.value;
+	const auto inWl = Core::App().settings().isPeerInSuperDataSavingWhitelist(peerId);
+	const auto text = inWl
+		? QString::fromUtf8("حذف از چت‌های مجاز (وایت‌لیست)")
+		: QString::fromUtf8("افزودن به چت‌های مجاز (وایت‌لیست)");
+	_addAction(
+		text,
+		[=] {
+			Core::App().settings().setPeerInSuperDataSavingWhitelist(peerId, !inWl);
+		},
+		&st::menuIconStorage);
 }
 
 void Filler::addToggleMuteSubmenu(bool addSeparator) {
@@ -1915,6 +1933,7 @@ void Filler::fillContextMenuActions() {
 	addHidePromotion();
 	addToggleArchive();
 	addTogglePin();
+	addSuperDataSavingWhitelistAction();
 	if (ViewProfileInChatsListContextMenu.value()) {
 		addInfo();
 	}
@@ -2108,6 +2127,7 @@ void Filler::fillArchiveActions() {
 void Filler::fillSavedSublistActions() {
 	addNewWindow(false);
 	addTogglePin();
+	addSuperDataSavingWhitelistAction();
 }
 
 void Filler::fillMonoforumPeerActions() {

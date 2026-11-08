@@ -241,6 +241,9 @@ void CustomEmojiLoader::resolved(not_null<DocumentData*> document) {
 
 void CustomEmojiLoader::load(Fn<void(LoadResult)> loaded) {
 	if (Core::App().settings().superDataSavingNoCustomEmoji()) {
+		if (loaded) {
+			loaded({});
+		}
 		return;
 	}
 	if (const auto resolve = std::get_if<Resolve>(&_state)) {

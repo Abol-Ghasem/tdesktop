@@ -7,6 +7,8 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 */
 #include "data/data_histories.h"
 
+#include "core/application.h"
+#include "core/core_settings.h"
 #include "api/api_text_entities.h"
 #include "data/business/data_shortcut_messages.h"
 #include "data/components/ephemeral_messages.h"
@@ -1068,6 +1070,12 @@ int Histories::sendRequest(
 		RequestType type,
 		Fn<mtpRequestId(Fn<void()> finish)> generator) {
 	Expects(type != RequestType::None);
+
+	if (type == RequestType::History
+		&& Core::App().settings().superDataSavingWhitelistEnabled()
+		&& !Core::App().settings().isPeerInSuperDataSavingWhitelist(history->peer->id.value)) {
+		return 0;
+	}
 
 	auto &state = _states[history];
 	const auto id = ++_requestAutoincrement;

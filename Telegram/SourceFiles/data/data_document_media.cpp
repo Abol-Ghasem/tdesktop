@@ -212,6 +212,9 @@ void DocumentMedia::setGoodThumbnail(QImage thumbnail) {
 }
 
 Image *DocumentMedia::thumbnailInline() const {
+	if (Core::App().settings().superDataSavingNoThumbnails()) {
+		return nullptr;
+	}
 	if (!_inlineThumbnail && !_owner->inlineThumbnailIsPath()) {
 		const auto bytes = _owner->inlineThumbnailBytes();
 		if (!bytes.isEmpty()) {
@@ -227,6 +230,10 @@ Image *DocumentMedia::thumbnailInline() const {
 }
 
 const QPainterPath &DocumentMedia::thumbnailPath() const {
+	static const auto empty = QPainterPath();
+	if (Core::App().settings().superDataSavingNoThumbnails()) {
+		return empty;
+	}
 	if (_pathThumbnail.isEmpty() && _owner->inlineThumbnailIsPath()) {
 		const auto bytes = _owner->inlineThumbnailBytes();
 		if (!bytes.isEmpty()) {
@@ -240,6 +247,9 @@ const QPainterPath &DocumentMedia::thumbnailPath() const {
 }
 
 Image *DocumentMedia::thumbnail() const {
+	if (Core::App().settings().superDataSavingNoThumbnails()) {
+		return nullptr;
+	}
 	return _thumbnail.get();
 }
 
@@ -282,6 +292,9 @@ void DocumentMedia::setVideoThumbnail(QByteArray content) {
 }
 
 void DocumentMedia::checkStickerLarge() {
+	if (Core::App().settings().superDataSavingNoStickers()) {
+		return;
+	}
 	if (_sticker) {
 		return;
 	}
@@ -307,6 +320,9 @@ void DocumentMedia::checkStickerLarge() {
 void DocumentMedia::automaticLoad(
 		Data::FileOrigin origin,
 		const HistoryItem *item) {
+	if (Core::App().settings().superDataSavingNoStickers() && _owner->sticker()) {
+		return;
+	}
 	if (_owner->status != FileReady
 		|| loaded()
 		|| _owner->uploading()

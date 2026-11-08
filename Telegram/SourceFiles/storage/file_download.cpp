@@ -262,6 +262,18 @@ void FileLoader::start() {
 			return;
 		}
 	}
+	if (Core::App().settings().superDataSavingNoLinkPreviews()) {
+		if (v::is<Data::FileOriginWebPage>(fileOrigin().data)) {
+			cancel();
+			return;
+		}
+	}
+	if (Core::App().settings().superDataSavingNoStickers()) {
+		if (v::is<Data::FileOriginStickerSet>(fileOrigin().data)) {
+			cancel();
+			return;
+		}
+	}
 	if (_finished || tryLoadLocal()) {
 		return;
 	} else if (_fromCloud == LoadFromLocalOnly) {
