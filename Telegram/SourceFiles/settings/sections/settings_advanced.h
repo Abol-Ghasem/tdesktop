@@ -49,4 +49,11 @@ void ArchiveSettingsBox(
 	not_null<Window::SessionController*> controller);
 void PreloadArchiveSettings(not_null<::Main::Session*> session);
 
+void SuperDataSavingBox(
+	not_null<Ui::GenericBox*> box,
+	not_null<Window::SessionController*> controller);
+void SuperDataSavingBoxIntro(
+	not_null<Ui::GenericBox*> box,
+	not_null<Window::Controller*> controller);
+
 } // namespace Settings

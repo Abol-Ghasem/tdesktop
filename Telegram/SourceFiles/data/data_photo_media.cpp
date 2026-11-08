@@ -7,6 +7,8 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 */
 #include "data/data_photo_media.h"
 
+#include "core/application.h"
+#include "core/core_settings.h"
 #include "data/data_file_origin.h"
 #include "data/data_session.h"
 #include "history/history.h"
@@ -35,6 +37,9 @@ not_null<PhotoData*> PhotoMedia::owner() const {
 }
 
 Image *PhotoMedia::thumbnailInline() const {
+	if (Core::App().settings().superDataSavingNoThumbnails()) {
+		return nullptr;
+	}
 	if (!_inlineThumbnail) {
 		const auto bytes = _owner->inlineThumbnailBytes();
 		if (!bytes.isEmpty()) {
@@ -50,6 +55,10 @@ Image *PhotoMedia::thumbnailInline() const {
 }
 
 Image *PhotoMedia::image(PhotoSize size) const {
+	if (Core::App().settings().superDataSavingNoThumbnails()
+		&& (size == PhotoSize::Thumbnail || size == PhotoSize::Small)) {
+		return nullptr;
+	}
 	if (const auto resolved = resolveLoadedImage(size)) {
 		return resolved->data.get();
 	}

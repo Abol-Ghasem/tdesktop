@@ -348,6 +348,7 @@ private:
 	object_ptr<Ui::FadeWrapScaled<Ui::IconButton>> _jumpToDate;
 	object_ptr<Ui::CrossButton> _cancelSearch;
 	object_ptr<Ui::FadeWrapScaled<Ui::IconButton>> _lockUnlock;
+	object_ptr<Ui::IconButton> _superDataSavingButton = { nullptr };
 
 	std::unique_ptr<Ui::MoreChatsBar> _moreChatsBar;
 

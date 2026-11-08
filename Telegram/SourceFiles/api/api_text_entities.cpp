@@ -7,6 +7,8 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 */
 #include "api/api_text_entities.h"
 
+#include "core/application.h"
+#include "core/core_settings.h"
 #include "data/data_document.h"
 #include "data/data_session.h"
 #include "data/data_user.h"
@@ -240,6 +242,9 @@ EntitiesInText EntitiesFromMTP(
 				d.vlength().v,
 			});
 		}, [&](const MTPDmessageEntityCustomEmoji &d) {
+			if (Core::App().settings().superDataSavingNoCustomEmoji()) {
+				return;
+			}
 			result.push_back({
 				EntityType::CustomEmoji,
 				d.voffset().v,

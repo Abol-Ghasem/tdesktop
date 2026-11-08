@@ -96,9 +96,7 @@ using namespace Builder;
 }
 #endif // Q_OS_MAC && !OS_MAC_STORE
 
-void SuperDataSavingBox(
-		not_null<Ui::GenericBox*> box,
-		not_null<Window::SessionController*> controller) {
+void SuperDataSavingBoxContent(not_null<Ui::GenericBox*> box) {
 	box->setTitle(rpl::single(QString::fromUtf8("سوپر دیتا سیوینگ")));
 	box->setWidth(st::boxWideWidth);
 	box->addButton(tr::lng_about_done(), [=] { box->closeBox(); });
@@ -193,6 +191,30 @@ void SuperDataSavingBox(
 		QString::fromUtf8("عدم دریافت بافر اولیه ویدیوها و گیف‌ها در هنگام اسکرول صفحه چت."),
 		Core::App().settings().superDataSavingNoBufferingValue(),
 		[](bool on) { Core::App().settings().setSuperDataSavingNoBuffering(on); });
+
+	addSubOption(
+		QString::fromUtf8("مسدودسازی کامل دانلود استیکرها"),
+		QString::fromUtf8("جلوگیری از ارسال درخواست و دانلود هرگونه استیکر متحرک، ویدیویی یا تصویری."),
+		Core::App().settings().superDataSavingNoStickersValue(),
+		[](bool on) { Core::App().settings().setSuperDataSavingNoStickers(on); });
+
+	addSubOption(
+		QString::fromUtf8("محدودسازی پیام‌ها فقط به چت‌های مجاز (وایت‌لیست)"),
+		QString::fromUtf8("فقط چت‌هایی که به لیست مجاز اضافه شده‌اند دریافت می‌شوند و بقیه از ریشه قطع می‌شوند."),
+		Core::App().settings().superDataSavingWhitelistEnabledValue(),
+		[](bool on) { Core::App().settings().setSuperDataSavingWhitelistEnabled(on); });
+}
+
+void SuperDataSavingBox(
+		not_null<Ui::GenericBox*> box,
+		not_null<Window::SessionController*> controller) {
+	SuperDataSavingBoxContent(box);
+}
+
+void SuperDataSavingBoxIntro(
+		not_null<Ui::GenericBox*> box,
+		not_null<Window::Controller*> controller) {
+	SuperDataSavingBoxContent(box);
 }
 
 void BuildDataStorageSection(SectionBuilder &builder) {

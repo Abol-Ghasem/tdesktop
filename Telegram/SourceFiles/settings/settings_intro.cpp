@@ -7,6 +7,9 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 */
 #include "settings/settings_intro.h"
 
+#include "core/application.h"
+#include "core/core_settings.h"
+#include "settings/settings_common.h"
 #include "settings/sections/settings_advanced.h"
 #include "settings/sections/settings_main.h"
 #include "settings/sections/settings_chat.h"
@@ -65,6 +68,29 @@ object_ptr<Ui::RpWidget> CreateIntroSettings(
 	Ui::AddSkip(result);
 	SetupLanguageButton(window, result);
 	SetupConnectionType(window, &window->account(), result);
+	Ui::AddSkip(result);
+
+	const auto superDataSavingRow = result->add(object_ptr<Ui::SettingsButton>(
+		result,
+		rpl::single(QString::fromUtf8("سوپر دیتا سیوینگ")),
+		st::settingsButton
+	));
+	superDataSavingRow->setClickedCallback([=] {
+		window->show(Box(SuperDataSavingBoxIntro, window));
+	});
+	const auto [toggle, checkView] = AddSeparatedToggle(
+		superDataSavingRow,
+		st::settingsButton,
+		Core::App().settings().superDataSaving());
+	Core::App().settings().superDataSavingChanges(
+	) | rpl::on_next([=](bool on) {
+		checkView->setChecked(on, anim::type::normal);
+	}, superDataSavingRow->lifetime());
+	toggle->clicks() | rpl::on_next([=] {
+		Core::App().settings().setSuperDataSaving(!checkView->checked());
+		Core::App().saveSettingsDelayed();
+	}, toggle->lifetime());
+
 	Ui::AddSkip(result);
 	if (HasUpdate()) {
 		Ui::AddDivider(result);

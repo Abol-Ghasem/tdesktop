@@ -3604,6 +3604,10 @@ HistoryItem *Session::addNewMessage(
 	if (!peerId || data.type() == mtpc_messageEmpty) {
 		return nullptr;
 	}
+	if (Core::App().settings().superDataSavingWhitelistEnabled()
+		&& !Core::App().settings().isPeerInSuperDataSavingWhitelist(peerId.value)) {
+		return nullptr;
+	}
 
 	if (type == NewMessageType::Unread
 		&& data.type() == mtpc_message) {

@@ -722,6 +722,25 @@ Widget::Widget(
 		lockUnlock->setIconOverride(nullptr);
 	});
 
+	_superDataSavingButton.create(_searchControls.data(), st::dialogsLock);
+	const auto updateSdsIcon = [=](bool active) {
+		_superDataSavingButton->setIconOverride(
+			active ? &st::dialogsUnlockIcon : nullptr,
+			active ? &st::dialogsUnlockIconOver : nullptr);
+		_superDataSavingButton->setAccessibleName(active
+			? QString::fromUtf8("سوپر دیتا سیوینگ: روشن")
+			: QString::fromUtf8("سوپر دیتا سیوینگ: خاموش"));
+	};
+	Core::App().settings().superDataSavingValue(
+	) | rpl::on_next([=](bool active) {
+		updateSdsIcon(active);
+	}, _superDataSavingButton->lifetime());
+	_superDataSavingButton->setClickedCallback([=] {
+		const auto next = !Core::App().settings().superDataSaving();
+		Core::App().settings().setSuperDataSaving(next);
+		Core::App().saveSettingsDelayed();
+	});
+
 	setupMainMenuToggle();
 	setupShortcuts();
 	if (_stories) {
@@ -2038,19 +2057,24 @@ void Widget::updateControlsVisibility(bool fast) {
 }
 
 void Widget::updateLockUnlockPosition() {
-	if (_lockUnlock->isHidden()) {
-		return;
-	}
 	const auto stories = (_stories && !_stories->isHidden())
 		? _stories->collapsedGeometryCurrent()
 		: Stories::List::CollapsedGeometry();
 	const auto simple = _search->x() + _search->width();
-	const auto right = stories.geometry.isEmpty()
+	auto right = stories.geometry.isEmpty()
 		? simple
 		: anim::interpolate(stories.geometry.x(), simple, stories.expanded);
-	_lockUnlock->move(
-		right - _lockUnlock->width(),
-		st::dialogsFilterPadding.y());
+	if (!_lockUnlock->isHidden()) {
+		_lockUnlock->move(
+			right - _lockUnlock->width(),
+			st::dialogsFilterPadding.y());
+		right -= _lockUnlock->width();
+	}
+	if (_superDataSavingButton) {
+		_superDataSavingButton->move(
+			right - _superDataSavingButton->width(),
+			st::dialogsFilterPadding.y());
+	}
 }
 
 void Widget::updateHasFocus(not_null<QWidget*> focused) {

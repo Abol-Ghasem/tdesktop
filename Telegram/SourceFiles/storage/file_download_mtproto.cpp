@@ -202,6 +202,18 @@ void mtpFileLoader::startLoading() {
 			return;
 		}
 	}
+	if (Core::App().settings().superDataSavingNoLinkPreviews()) {
+		if (v::is<Data::FileOriginWebPage>(fileOrigin().data)) {
+			cancel();
+			return;
+		}
+	}
+	if (Core::App().settings().superDataSavingNoStickers()) {
+		if (v::is<Data::FileOriginStickerSet>(fileOrigin().data)) {
+			cancel();
+			return;
+		}
+	}
 	addToQueue();
 }
 
@@ -221,6 +233,18 @@ void mtpFileLoader::startLoadingWithPartial(const QByteArray &data) {
 	}
 	if (Core::App().settings().superDataSavingNoStories()) {
 		if (v::is<Data::FileOriginStory>(fileOrigin().data)) {
+			cancel();
+			return;
+		}
+	}
+	if (Core::App().settings().superDataSavingNoLinkPreviews()) {
+		if (v::is<Data::FileOriginWebPage>(fileOrigin().data)) {
+			cancel();
+			return;
+		}
+	}
+	if (Core::App().settings().superDataSavingNoStickers()) {
+		if (v::is<Data::FileOriginStickerSet>(fileOrigin().data)) {
 			cancel();
 			return;
 		}

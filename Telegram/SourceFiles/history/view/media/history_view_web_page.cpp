@@ -939,16 +939,15 @@ void WebPage::refreshParentId(not_null<HistoryItem*> realParent) {
 void WebPage::ensurePhotoMediaCreated() const {
 	Expects(_data->photo != nullptr);
 
-	if (Core::App().settings().superDataSavingNoLinkPreviews()) {
-		return;
-	}
 	if (_photoMedia) {
 		return;
 	}
 	_photoMedia = _data->photo->createMediaView();
-	const auto contextId = _parent->data()->fullId();
-	_photoMedia->wanted(Data::PhotoSize::Thumbnail, contextId);
-	history()->owner().registerHeavyViewPart(_parent);
+	if (!Core::App().settings().superDataSavingNoLinkPreviews()) {
+		const auto contextId = _parent->data()->fullId();
+		_photoMedia->wanted(Data::PhotoSize::Thumbnail, contextId);
+		history()->owner().registerHeavyViewPart(_parent);
+	}
 }
 
 bool WebPage::hasHeavyPart() const {
