@@ -75,7 +75,7 @@ void HkdfExtractAndExpand(
 		HMAC_CTX_free(ctx);
 
 		tLen = 32;
-		const auto toCopy = std::min(32, okmLen - generated);
+		const auto toCopy = std::min<int>(32, okmLen - generated);
 		memcpy(outPtr + generated, t, toCopy);
 		generated += toCopy;
 		counter++;
@@ -135,25 +135,25 @@ void DeriveKeys(
 		passphrase.toUtf8(),
 		QCryptographicHash::Sha256);
 
-	const char qInfo[] = "thefeed-query";
+	const char queryInfo[] = "thefeed-query";
 	HkdfExtractAndExpand(
 		nullptr,
 		0,
 		masterHash.constData(),
 		masterHash.size(),
-		qInfo,
-		sizeof(qInfo) - 1,
+		queryInfo,
+		sizeof(queryInfo) - 1,
 		queryKey.data(),
 		32);
 
-	const char rInfo[] = "thefeed-response";
+	const char respInfo[] = "thefeed-response";
 	HkdfExtractAndExpand(
 		nullptr,
 		0,
 		masterHash.constData(),
 		masterHash.size(),
-		rInfo,
-		sizeof(rInfo) - 1,
+		respInfo,
+		sizeof(respInfo) - 1,
 		responseKey.data(),
 		32);
 }
