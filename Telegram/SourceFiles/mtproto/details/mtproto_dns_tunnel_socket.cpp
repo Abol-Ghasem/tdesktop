@@ -296,7 +296,7 @@ void DnsTunnelSocket::pumpOutgoing() {
 	}
 
 	while (!_outQueue.isEmpty() && _inFlight.size() < 3) {
-		const auto take = std::min(int(_chunkSize), _outQueue.size());
+		const auto take = std::min<int>(int(_chunkSize), int(_outQueue.size()));
 		const auto chunk = _outQueue.left(take);
 		_outQueue.remove(0, take);
 
