@@ -205,18 +205,6 @@ void SuperDataSavingBoxContent(not_null<Ui::GenericBox*> box) {
 		[](bool on) { Core::App().settings().setSuperDataSavingWhitelistEnabled(on); });
 }
 
-void SuperDataSavingBox(
-		not_null<Ui::GenericBox*> box,
-		not_null<Window::SessionController*> controller) {
-	SuperDataSavingBoxContent(box);
-}
-
-void SuperDataSavingBoxIntro(
-		not_null<Ui::GenericBox*> box,
-		not_null<Window::Controller*> controller) {
-	SuperDataSavingBoxContent(box);
-}
-
 void BuildDataStorageSection(SectionBuilder &builder) {
 	const auto controller = builder.controller();
 	const auto container = builder.container();
@@ -2152,6 +2140,18 @@ void ArchiveSettingsBox(
 
 void PreloadArchiveSettings(not_null<::Main::Session*> session) {
 	session->api().globalPrivacy().reload();
+}
+
+void SuperDataSavingBox(
+		not_null<Ui::GenericBox*> box,
+		not_null<Window::SessionController*> controller) {
+	SuperDataSavingBoxContent(box);
+}
+
+void SuperDataSavingBoxIntro(
+		not_null<Ui::GenericBox*> box,
+		not_null<Window::Controller*> controller) {
+	SuperDataSavingBoxContent(box);
 }
 
 Type AdvancedId() {
