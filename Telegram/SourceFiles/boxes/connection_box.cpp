@@ -1545,17 +1545,20 @@ ProxyData ProxyBox::collectData() {
 	auto result = ProxyData();
 	result.type = _type->current();
 	const auto web = (result.type == Type::Web);
+	const auto dns = (result.type == Type::DnsTunnel);
 	result.host = web
 		? QString()
 		: _host->getLastText().trimmed();
 	result.port = web
 		? 443
+		: dns
+		? (_port->getLastText().trimmed().isEmpty() ? 53 : _port->getLastText().trimmed().toInt())
 		: _port->getLastText().trimmed().toInt();
 	result.user = (result.type == Type::Mtproto || web)
 		? QString()
 		: _user->getLastText();
-	result.password = (result.type == Type::Mtproto || web)
-		? _secret->getLastText()
+	result.password = (result.type == Type::Mtproto || web || dns)
+		? (_secret->getLastText().trimmed().isEmpty() ? _password->getLastText() : _secret->getLastText())
 		: _password->getLastText();
 	if (web) {
 		result.setWebAddress(_webHost->getLastText());
@@ -1591,6 +1594,7 @@ void ProxyBox::setupTypes() {
 		{ Type::Socks5, u"SOCKS5"_q },
 		{ Type::Http, u"HTTP"_q },
 		{ Type::Web, u"WEB"_q },
+		{ Type::DnsTunnel, u"DNS TUNNEL"_q },
 	};
 	for (const auto &[type, label] : types) {
 		_content->add(
@@ -1605,6 +1609,8 @@ void ProxyBox::setupTypes() {
 	) | rpl::map([](Type type) {
 		return (type == Type::Web)
 			? tr::lng_proxy_web_warning(tr::now)
+			: (type == Type::DnsTunnel)
+			? QString::fromUtf8("اتصال مستقیم از طریق بسته‌های DNS TXT (فناوری TheFeed). در این حالت نیازی به اینترنت مستقیم و باز بودن پورت‌های TCP نیست.")
 			: tr::lng_proxy_sponsor_warning(tr::now);
 	});
 	_aboutSponsored = _content->add(object_ptr<Ui::SlideWrap<>>(
@@ -1752,14 +1758,15 @@ void ProxyBox::setupControls(const ProxyData &data) {
 
 	const auto handleType = [=](Type type) {
 		const auto web = (type == Type::Web);
+		const auto dns = (type == Type::DnsTunnel);
 		const auto credentialsShown
-			= (type == Type::Http || type == Type::Socks5);
-		const auto mtprotoShown = (type == Type::Mtproto || web);
+			= (type == Type::Http || type == Type::Socks5 || dns);
+		const auto mtprotoShown = (type == Type::Mtproto || web || dns);
 		_socketAddress->toggle(!web, anim::type::instant);
 		_webAddress->toggle(web, anim::type::instant);
 		_credentials->toggle(credentialsShown, anim::type::instant);
 		_mtprotoCredentials->toggle(mtprotoShown, anim::type::instant);
-		_aboutSponsored->toggle(mtprotoShown, anim::type::instant);
+		_aboutSponsored->toggle(mtprotoShown || dns, anim::type::instant);
 		const auto credentialsPolicy = credentialsShown
 			? Qt::StrongFocus
 			: Qt::NoFocus;

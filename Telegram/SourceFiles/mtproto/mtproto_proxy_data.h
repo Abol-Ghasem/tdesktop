@@ -23,6 +23,7 @@ struct ProxyData {
 		Http,
 		Mtproto,
 		Web,
+		DnsTunnel,
 	};
 	enum class Status {
 		Valid,

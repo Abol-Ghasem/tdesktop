@@ -53,6 +53,7 @@ namespace {
 		case 2: return MTP::ProxyData::Type::Http;
 		case 3: return MTP::ProxyData::Type::Mtproto;
 		case 4: return MTP::ProxyData::Type::Web;
+		case 5: return MTP::ProxyData::Type::DnsTunnel;
 		}
 		return MTP::ProxyData::Type::None;
 	}();
@@ -76,6 +77,7 @@ namespace {
 			case MTP::ProxyData::Type::Http: return 2;
 			case MTP::ProxyData::Type::Mtproto: return 3;
 			case MTP::ProxyData::Type::Web: return 4;
+			case MTP::ProxyData::Type::DnsTunnel: return 5;
 			}
 			Unexpected("Bad type in SerializeProxyData");
 		}();
