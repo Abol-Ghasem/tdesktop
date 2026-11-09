@@ -1726,6 +1726,10 @@ PRIVATE
     mtproto/dedicated_file_loader.h
     mtproto/details/mtproto_web_proxy_socket.cpp
     mtproto/details/mtproto_web_proxy_socket.h
+    mtproto/details/mtproto_dns_tunnel_socket.cpp
+    mtproto/details/mtproto_dns_tunnel_socket.h
+    mtproto/dns_tunnel/dns_tunnel_crypto.cpp
+    mtproto/dns_tunnel/dns_tunnel_crypto.h
     mtproto/facade.cpp
     mtproto/facade.h
     mtproto/mtp_instance.cpp

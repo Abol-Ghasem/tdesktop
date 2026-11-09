@@ -684,7 +684,8 @@ void SessionPrivate::tryToSend() {
 		const auto appVersion = ComputeAppVersion();
 		const auto proxyType = _options->proxy.type;
 		const auto mtprotoProxy = (proxyType == ProxyData::Type::Mtproto)
-			|| (proxyType == ProxyData::Type::Web);
+			|| (proxyType == ProxyData::Type::Web)
+			|| (proxyType == ProxyData::Type::DnsTunnel);
 		const auto clientProxyFields = mtprotoProxy
 			? MTP_inputClientProxy(
 				MTP_string(_options->proxy.host),
@@ -1032,7 +1033,8 @@ void SessionPrivate::connectToServer(bool afterConfig) {
 		}
 	}
 	if (_options->proxy.type == ProxyData::Type::Mtproto
-		|| _options->proxy.type == ProxyData::Type::Web) {
+		|| _options->proxy.type == ProxyData::Type::Web
+		|| _options->proxy.type == ProxyData::Type::DnsTunnel) {
 		// host, port, secret for mtproto proxy are taken from proxy.
 		appendTestConnection(DcOptions::Variants::Tcp, {}, 0, {});
 	} else {
@@ -2667,7 +2669,8 @@ void SessionPrivate::onError(
 		LOG(("Protocol Error: -444 bad dc_id code returned!"));
 		const auto &proxy = _options->proxy;
 		if (proxy.type == ProxyData::Type::Mtproto
-			|| proxy.type == ProxyData::Type::Web) {
+			|| proxy.type == ProxyData::Type::Web
+			|| proxy.type == ProxyData::Type::DnsTunnel) {
 			InvokeQueued(_instance, [instance = _instance, proxy] {
 				instance->badConfigurationError(proxy);
 			});

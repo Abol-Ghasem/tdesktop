@@ -497,6 +497,8 @@ ProxyData::Status ProxyData::status() const {
 		return Status::Invalid;
 	} else if (type == Type::Mtproto) {
 		return MtprotoPasswordStatus(password);
+	} else if (type == Type::DnsTunnel) {
+		return Status::Valid;
 	}
 	return Status::Valid;
 }
@@ -572,7 +574,8 @@ QNetworkProxy ToNetworkProxy(const ProxyData &proxy) {
 	if (proxy.type == ProxyData::Type::None) {
 		return QNetworkProxy::DefaultProxy;
 	} else if (proxy.type == ProxyData::Type::Mtproto
-		|| proxy.type == ProxyData::Type::Web) {
+		|| proxy.type == ProxyData::Type::Web
+		|| proxy.type == ProxyData::Type::DnsTunnel) {
 		return QNetworkProxy::NoProxy;
 	}
 	return QNetworkProxy(

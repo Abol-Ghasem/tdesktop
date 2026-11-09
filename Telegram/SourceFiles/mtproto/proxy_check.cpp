@@ -77,12 +77,15 @@ void StartProxyCheck(
 		raw->connect(raw, &Connection::disconnected, failed);
 		raw->connect(raw, &Connection::error, failed);
 	};
-	if (proxy.type == ProxyData::Type::Mtproto) {
-		const auto secret = proxy.secretFromMtprotoPassword();
+	if (proxy.type == ProxyData::Type::Mtproto
+		|| proxy.type == ProxyData::Type::DnsTunnel) {
+		const auto secret = (proxy.type == ProxyData::Type::Mtproto)
+			? proxy.secretFromMtprotoPassword()
+			: bytes::vector();
 		setup(v4, secret);
 		v4->connectToServer(
 			proxy.host,
-			proxy.port,
+			proxy.port ? proxy.port : 53,
 			secret,
 			dcId,
 			false);

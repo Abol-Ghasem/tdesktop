@@ -244,7 +244,8 @@ void Session::refreshOptions() {
 	const auto proxyType = (isEnabled ? proxy.type : ProxyData::Type::None);
 	const auto useTcp = (proxyType != ProxyData::Type::Http);
 	const auto useHttp = (proxyType != ProxyData::Type::Mtproto)
-		&& (proxyType != ProxyData::Type::Web);
+		&& (proxyType != ProxyData::Type::Web)
+		&& (proxyType != ProxyData::Type::DnsTunnel);
 	const auto useIPv4 = true;
 	const auto useIPv6 = settings.tryIPv6();
 	_data->setOptions(SessionOptions(

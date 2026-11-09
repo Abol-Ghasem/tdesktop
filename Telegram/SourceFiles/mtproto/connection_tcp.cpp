@@ -9,6 +9,7 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 
 #include "mtproto/details/mtproto_abstract_socket.h"
 #include "mtproto/details/mtproto_web_proxy_socket.h"
+#include "mtproto/details/mtproto_dns_tunnel_socket.h"
 #include "base/bytes.h"
 #include "base/openssl_help.h"
 #include "base/random.h"
@@ -519,13 +520,14 @@ void TcpConnection::connectToServer(
 	Expects(_protocolDcId == 0);
 
 	const auto proxyProtocol = (_proxy.type == ProxyData::Type::Mtproto)
-		|| (_proxy.type == ProxyData::Type::Web);
-	const auto secret = proxyProtocol
+		|| (_proxy.type == ProxyData::Type::Web)
+		|| (_proxy.type == ProxyData::Type::DnsTunnel);
+	const auto secret = (_proxy.type == ProxyData::Type::Mtproto)
 		? _proxy.secretFromMtprotoPassword()
 		: protocolSecret;
 	if (proxyProtocol) {
 		_address = _proxy.host;
-		_port = _proxy.port;
+		_port = _proxy.port ? _proxy.port : 53;
 		_protocol = Protocol::Create(secret);
 	} else {
 		_address = address;
@@ -534,6 +536,8 @@ void TcpConnection::connectToServer(
 	}
 	_socket = (_proxy.type == ProxyData::Type::Web)
 		? std::make_unique<WebProxySocket>(thread(), _proxy)
+		: (_proxy.type == ProxyData::Type::DnsTunnel)
+		? std::make_unique<DnsTunnelSocket>(thread(), _proxy, protocolDcId)
 		: AbstractSocket::Create(
 			thread(),
 			secret,
@@ -550,6 +554,8 @@ void TcpConnection::connectToServer(
 				? "mtproxy "
 				: (_proxy.type == ProxyData::Type::Web)
 				? "webproxy "
+				: (_proxy.type == ProxyData::Type::DnsTunnel)
+				? "dnstunnel "
 				: "",
 			_address)
 		.arg(_port)
