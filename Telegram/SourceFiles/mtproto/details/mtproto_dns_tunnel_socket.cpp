@@ -115,9 +115,7 @@ DnsTunnelSocket::DnsTunnelSocket(
 		int16 protocolDcId)
 : AbstractSocket(thread)
 , _proxy(proxy)
-, _dcId(protocolDcId > 0 ? protocolDcId : 2)
-, _pollTimer(this)
-, _retransmitTimer(this) {
+, _dcId(protocolDcId > 0 ? protocolDcId : 2) {
 	_tunnelDomain = _proxy.host;
 	_dnsPort = _proxy.port ? _proxy.port : 53;
 
@@ -130,8 +128,8 @@ DnsTunnelSocket::DnsTunnelSocket(
 
 	initKeys();
 
-	connect(&_pollTimer, &QTimer::timeout, this, [this] { onPollTimeout(); });
-	connect(&_retransmitTimer, &QTimer::timeout, this, [this] { onRetransmitTimeout(); });
+	connect(&_pollTimer, &QTimer::timeout, [this] { onPollTimeout(); });
+	connect(&_retransmitTimer, &QTimer::timeout, [this] { onRetransmitTimeout(); });
 }
 
 DnsTunnelSocket::~DnsTunnelSocket() {
@@ -170,7 +168,7 @@ void DnsTunnelSocket::connectToHost(const QString &, int) {
 	Expects(_state == State::NotConnected);
 
 	_state = State::Handshaking;
-	_udp = std::make_unique<QUdpSocket>(this);
+	_udp = std::make_unique<QUdpSocket>();
 	connect(_udp.get(), &QUdpSocket::readyRead, [this] {
 		onUdpReadyRead();
 	});
@@ -473,6 +471,7 @@ void DnsTunnelSocket::onDataOrPollReply(const QByteArray &body) {
 	}
 
 	const auto upAck = qFromBigEndian<uint16>(body.constData() + 1);
+	(void)upAck;
 	const auto downSeq = qFromBigEndian<uint16>(body.constData() + 3);
 	const auto downLeft = qFromBigEndian<uint16>(body.constData() + 5);
 	const auto data = body.mid(7);
